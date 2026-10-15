@@ -43,3 +43,20 @@ def build_index(slides_dir="slides", output_file="presentaciones.json"):
         raw_text = re.sub(r'<[^>]+>', ' ', body_match.group(1)) if body_match else ""
         clean_text = " ".join(raw_text.split()).lower()
 
+        presentaciones.append({
+            "title": parser.meta["title"] or html_file.parent.name,
+            "date": parser.meta["date"],
+            "course": parser.meta["course"],
+            "tags": [t.strip() for t in parser.meta["tags"].split(",") if t.strip()],
+            "description": parser.meta["description"],
+            "url": str(html_file).replace("\\", "/"),
+            "full_text": clean_text[:1000] # solo los primeros mil caracteres para no inflar el JSON
+        })
+    # ordenar de más reciente a más antiguo (esto es para el historial)
+    presentaciones.sort(key=lambda x: x["date"], reverse=True)
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(presentaciones, f, ensure_ascii=False, indent=2)
+if __name__ == "__main__":
+    build_index()
+
