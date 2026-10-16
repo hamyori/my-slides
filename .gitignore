@@ -1,0 +1,8 @@
+# Ignorar archivos especificos
+estructura_metadatos.html
+# Ignorar archivos de entorno o secretos
+.env
+
+# Archivos temporales de Python
+__pycache__/
+*.py[cod]

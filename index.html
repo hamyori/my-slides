@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Índice de Presentaciones</title>
+  <style>
+    :root {
+      --bg-base: #0b0e14;
+      --bg-surface: #131721;
+      --bg-hover: #1c2230;
+      --border: #262e3d;
+      --border-focus: #58a6ff;
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-soft: rgba(88, 166, 255, 0.12);
+      --tag-bg: #1f2937;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 2.5rem 1.25rem;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    /* Encabezado */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .stats-badge {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    /* Aviso de modo demo */
+    #demo-warning {
+      display: none;
+      background: rgba(210, 153, 34, 0.12);
+      border: 1px solid rgba(210, 153, 34, 0.4);
+      color: #e3b341;
+      font-size: 0.85rem;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Buscador */
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      font-family: var(--font-mono);
+    }
+
+    #search-input {
+      width: 100%;
+      background-color: var(--bg-surface);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 4.5rem 0.85rem 2.6rem;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    #search-input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .shortcut-hint {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 0.3rem;
+      pointer-events: none;
+    }
+
+    kbd {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1rem 0.45rem;
+    }
+
+    /* Filtros por curso */
+    .course-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .course-btn {
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.3rem 0.85rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .course-btn:hover {
+      color: var(--text-main);
+      border-color: var(--text-muted);
+    }
+
+    .course-btn.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Secciones */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .clear-btn:hover {
+      color: var(--text-main);
+    }
+
+    /* Vistos recientemente (compacto) */
+    #recent-viewed-section {
+      display: none;
+      margin-bottom: 2.25rem;
+    }
+
+    .recent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .recent-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      text-decoration: none;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .recent-item:hover {
+      border-color: var(--accent);
+      background: var(--bg-hover);
+    }
+
+    .recent-item span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Tarjetas de presentaciones */
+    .slides-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .slide-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.15rem 1.25rem;
+      transition: border-color 0.15s ease, transform 0.1s ease, background-color 0.15s ease;
+      position: relative;
+    }
+
+    .slide-card:hover {
+      border-color: var(--border-focus);
+      background-color: var(--bg-hover);
+    }
+
+    .slide-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      margin-bottom: 0.4rem;
+    }
+
+    .course-label {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .slide-date {
+      color: var(--text-muted);
+    }
+
+    .slide-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .slide-card h3 a {
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .slide-card h3 a:hover {
+      color: var(--accent);
+    }
+
+    .slide-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag {
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tag:hover {
+      color: var(--text-main);
+      border-color: var(--text-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+
+    .catalog-toolbar {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: -1rem 0 2rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .toolbar-group { display: flex; align-items: end; gap: 0.7rem; flex-wrap: wrap; }
+    .toolbar-field { display: grid; gap: 0.25rem; }
+    .toolbar-field label { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: .04em; }
+    .toolbar-field select, .toolbar-button, .card-action {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-surface);
+      color: var(--text-main);
+      padding: 0.45rem 0.65rem;
+      font: inherit;
+    }
+    .toolbar-field select, .toolbar-button, .card-action { cursor: pointer; }
+    .toolbar-button:hover, .card-action:hover { border-color: var(--accent); color: var(--accent); }
+
+    .slide-card { display: grid; grid-template-columns: minmax(150px, 230px) minmax(0, 1fr); gap: 1.1rem; }
+    .slide-preview {
+      min-height: 140px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #19283b, #263c59 55%, #584271);
+      color: #f3f6fa;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0.8rem;
+      position: relative;
+    }
+    .slide-preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .slide-preview::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,10,18,.15), rgba(5,10,18,.86)); }
+    .slide-preview strong, .preview-course { position: relative; z-index: 1; }
+    .slide-preview strong { font-size: 1rem; line-height: 1.2; }
+    .preview-course { font: 700 0.65rem var(--font-mono); text-transform: uppercase; letter-spacing: .07em; color: #b9d9ff; }
+    .slide-preview.has-image strong, .slide-preview.has-image .preview-course { display: none; }
+    .slide-card-content { min-width: 0; }
+    .slide-card-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.85rem 0; }
+    .card-action { font-size: 0.75rem; }
+    .card-action[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .slide-facts { display: flex; flex-wrap: wrap; gap: 0.35rem 0.8rem; color: var(--text-muted); font: 0.7rem var(--font-mono); margin: 0.45rem 0 0.8rem; }
+    .related-decks { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; color: var(--text-muted); font-size: 0.75rem; }
+    .related-decks a { color: var(--accent); text-decoration: none; }
+    .related-decks a:hover { text-decoration: underline; }
+
+    #collection-dialog {
+      width: min(440px, calc(100vw - 2rem));
+      margin: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+    #collection-dialog::backdrop { background: rgba(0, 0, 0, .68); }
+    .dialog-form { display: grid; gap: 1rem; }
+    .dialog-form h2 { font-size: 1.1rem; }
+    .dialog-form label { display: grid; gap: 0.35rem; color: var(--text-muted); font-size: 0.85rem; }
+    .dialog-form select, .dialog-form input { width: 100%; padding: 0.65rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-base); color: var(--text-main); font: inherit; }
+    .dialog-actions { display: flex; justify-content: end; gap: 0.6rem; }
+    .dialog-error { min-height: 1.2em; color: #ff8c8c; font-size: 0.8rem; }
+
+    @media (max-width: 600px) {
+      .slide-card { grid-template-columns: 1fr; }
+      .slide-preview { min-height: 170px; }
+      .catalog-toolbar { align-items: stretch; }
+      .toolbar-group { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Repositorio de Presentaciones</h1>
+    <span class="stats-badge" id="total-count">Cargando...</span>
+  </header>
+
+  <div id="demo-warning">
+    No se pudo cargar el índice. Ejecuta `python3 indexer.py` desde la raíz del repositorio.
+  </div>
+
+  <div class="search-wrapper">
+    <span class="search-icon">&gt;</span>
+    <input
+      type="text"
+      id="search-input"
+      placeholder="Buscar por tema, palabra clave, curso o etiqueta..."
+      autocomplete="off"
+    >
+    <div class="shortcut-hint">
+      <kbd id="kbd-hint">/</kbd>
+    </div>
+  </div>
+
+  <!-- Filtros dinámicos por curso -->
+  <div class="course-filters" id="course-filters"></div>
+
+  <div class="catalog-toolbar" aria-label="Opciones del catálogo">
+    <div class="toolbar-group">
+      <div class="toolbar-field">
+        <label for="library-filter">Mi biblioteca</label>
+        <select id="library-filter">
+          <option value="all">Todas las presentaciones</option>
+        </select>
+      </div>
+      <button class="toolbar-button" id="new-collection-btn" type="button">Nueva colección</button>
+      <button class="toolbar-button" id="delete-collection-btn" type="button" hidden>Eliminar colección</button>
+    </div>
+    <div class="toolbar-field">
+      <label for="sort-select">Ordenar por</label>
+      <select id="sort-select">
+        <option value="newest">Más recientes</option>
+        <option value="title">Título</option>
+        <option value="course">Curso</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Historial de abiertos recientemente (localStorage) -->
+  <section id="recent-viewed-section">
+    <div class="section-header">
+      <h2 class="section-title">Abiertas recientemente en este navegador</h2>
+      <button class="clear-btn" id="clear-recent-btn">limpiar</button>
+    </div>
+    <div class="recent-grid" id="recent-viewed-container"></div>
+  </section>
+
+  <!-- Listado principal (Cronológico o Resultados de búsqueda) -->
+  <main>
+    <div class="section-header">
+      <h2 class="section-title" id="section-title">Historial de Presentaciones Recientes</h2>
+    </div>
+    <div class="slides-grid" id="results-container"></div>
+  </main>
+
+  <dialog id="collection-dialog" aria-labelledby="collection-dialog-title">
+    <form class="dialog-form" id="collection-form">
+      <h2 id="collection-dialog-title">Guardar en una colección</h2>
+      <label for="collection-choice">Colección existente
+        <select id="collection-choice">
+          <option value="">Elegir una colección</option>
+        </select>
+      </label>
+      <label for="collection-name">O crear una colección
+        <input id="collection-name" type="text" maxlength="48" placeholder="Ej. Repaso de sistemas">
+      </label>
+      <p class="dialog-error" id="collection-error" role="status"></p>
+      <div class="dialog-actions">
+        <button class="toolbar-button" id="cancel-collection-btn" type="button">Cancelar</button>
+        <button class="toolbar-button" type="submit">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const FALLBACK_DATA = [];
+
+    let slidesData = [];
+    let activeCourse = "Todos";
+    const RECENT_STORAGE_KEY = "slides_recently_viewed";
+    const FAVORITES_STORAGE_KEY = "slides_favorites_v1";
+    const COLLECTIONS_STORAGE_KEY = "slides_collections_v1";
+    const PROGRESS_STORAGE_PREFIX = "slides_progress_v1:";
+    let favorites = [];
+    let collections = [];
+    let activeShelf = "all";
+    let pendingCollectionUrl = "";
+
+    const searchInput = document.getElementById("search-input");
+    const resultsContainer = document.getElementById("results-container");
+    const sectionTitle = document.getElementById("section-title");
+    const totalCountBadge = document.getElementById("total-count");
+    const courseFiltersContainer = document.getElementById("course-filters");
+    const kbdHint = document.getElementById("kbd-hint");
+    const libraryFilter = document.getElementById("library-filter");
+    const sortSelect = document.getElementById("sort-select");
+    const collectionDialog = document.getElementById("collection-dialog");
+    const collectionChoice = document.getElementById("collection-choice");
+    const collectionName = document.getElementById("collection-name");
+    const collectionError = document.getElementById("collection-error");
+
+    // 1. Inicialización
+    async function init() {
+      try {
+        const res = await fetch("./presentaciones.json");
+        if (!res.ok) throw new Error("JSON no encontrado");
+        slidesData = await res.json();
+        if (!Array.isArray(slidesData)) throw new Error("El índice debe ser una lista");
+      } catch (err) {
+        document.getElementById("demo-warning").style.display = "block";
+        slidesData = FALLBACK_DATA;
+      }
+
+      slidesData.sort((a, b) => b.date.localeCompare(a.date));
+      totalCountBadge.textContent = `${slidesData.length} presentaciones`;
+      const savedFavorites = readStorage(FAVORITES_STORAGE_KEY, []);
+      const savedCollections = readStorage(COLLECTIONS_STORAGE_KEY, []);
+      const availableUrls = new Set(slidesData.map(slide => slide.url));
+      favorites = Array.isArray(savedFavorites) ? savedFavorites.filter(url => availableUrls.has(url)) : [];
+      collections = Array.isArray(savedCollections)
+        ? savedCollections
+          .filter(item => item && item.id && item.name && Array.isArray(item.urls))
+          .map(item => ({ ...item, urls: [...new Set(item.urls.filter(url => availableUrls.has(url)))] }))
+        : [];
+      activeShelf = libraryFilter.value || "all";
+      renderCourseFilters();
+      renderLibraryFilter();
+      renderRecentlyViewed();
+      document.getElementById("recent-viewed-container").addEventListener("click", event => {
+        const link = event.target.closest("a[data-url]");
+        const slide = link && slidesData.find(item => item.url === link.dataset.url);
+        if (slide) saveRecentlyViewed(slide);
+      });
+      applyFilters();
+    }
+
+    // 2. Generar botones de cursos dinámicamente
+    function renderCourseFilters() {
+      const courses = ["Todos", ...new Set(slidesData.map(s => s.course).filter(Boolean))];
+      if (courses.length <= 2) {
+        courseFiltersContainer.innerHTML = "";
+        return;
+      }
+
+      courseFiltersContainer.innerHTML = courses.map(course => `
+        <button class="course-btn ${course === activeCourse ? 'active' : ''}" data-course="${escapeHtml(course)}">
+          ${escapeHtml(course)}
+        </button>
+      `).join("");
+
+      courseFiltersContainer.querySelectorAll(".course-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          activeCourse = btn.dataset.course;
+          courseFiltersContainer.querySelectorAll(".course-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          applyFilters();
+        });
+      });
+    }
+
+    function renderLibraryFilter() {
+      const previousValue = activeShelf;
+      libraryFilter.innerHTML = `
+        <option value="all">Todas las presentaciones</option>
+        <option value="favorites">Guardadas (${favorites.length})</option>
+        ${collections.map(collection => `<option value="collection:${escapeHtml(collection.id)}">${escapeHtml(collection.name)} (${collection.urls.length})</option>`).join("")}
+      `;
+      const hasPrevious = [...libraryFilter.options].some(option => option.value === previousValue);
+      libraryFilter.value = hasPrevious ? previousValue : "all";
+      activeShelf = libraryFilter.value;
+      document.getElementById("delete-collection-btn").hidden = !activeShelf.startsWith("collection:");
+    }
+
+    // 3. Filtrado combinado (Texto + Curso)
+    function applyFilters() {
+      const rawQuery = searchInput.value.trim();
+      const query = rawQuery.toLowerCase();
+      const terms = query ? query.split(/\s+/) : [];
+
+      const filtered = slidesData.filter(slide => {
+        const matchesCourse = activeCourse === "Todos" || slide.course === activeCourse;
+        if (!matchesCourse) return false;
+        if (activeShelf === "favorites" && !favorites.includes(slide.url)) return false;
+        if (activeShelf.startsWith("collection:")) {
+          const collection = collections.find(item => item.id === activeShelf.slice("collection:".length));
+          if (!collection || !collection.urls.includes(slide.url)) return false;
+        }
+        if (terms.length === 0) return true;
+
+        const searchable = `
+          ${slide.title}
+          ${slide.course}
+          ${slide.description}
+          ${(slide.tags || []).join(" ")}
+          ${slide.full_text || ""}
+        `.toLowerCase();
+
+        return terms.every(term => searchable.includes(term));
+      });
+
+      const sortMode = sortSelect.value;
+      filtered.sort((a, b) => {
+        if (sortMode === "title") return a.title.localeCompare(b.title, "es", { sensitivity: "base" });
+        if (sortMode === "course") return (a.course || "").localeCompare(b.course || "", "es", { sensitivity: "base" }) || a.title.localeCompare(b.title, "es");
+        return b.date.localeCompare(a.date);
+      });
+
+      const hasFilters = rawQuery || activeCourse !== "Todos" || activeShelf !== "all";
+      sectionTitle.textContent = hasFilters ? `Resultados (${filtered.length})` : "Presentaciones recientes";
+      renderSlides(filtered);
+    }
+
+    // 4. Renderizar tarjetas
+    function renderSlides(list) {
+      if (list.length === 0) {
+        resultsContainer.innerHTML = `
+          <div class="empty-state">
+            No se encontraron presentaciones. Prueba otra búsqueda o filtro.
+          </div>
+        `;
+        return;
+      }
+
+      resultsContainer.innerHTML = list.map(slide => {
+        const preview = slide.preview
+          ? `<img src="${escapeHtml(slide.preview)}" alt="">`
+          : "";
+        const progress = getSlideProgress(slide.url);
+        const related = relatedSlides(slide).map(item =>
+          `<a href="${escapeHtml(item.url)}" class="slide-link" data-url="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a>`
+        ).join(" · ");
+        const inCollection = activeShelf.startsWith("collection:") && collections
+          .find(item => item.id === activeShelf.slice("collection:".length))?.urls.includes(slide.url);
+
+        return `
+          <article class="slide-card">
+            <a href="${escapeHtml(slide.url)}" class="slide-preview slide-link ${slide.preview ? "has-image" : ""}" data-url="${escapeHtml(slide.url)}" aria-label="Abrir ${escapeHtml(slide.title)}">
+              ${preview}
+              <span class="preview-course">${escapeHtml(slide.course || "General")}</span>
+              <strong>${escapeHtml(slide.title)}</strong>
+            </a>
+            <div class="slide-card-content">
+              <div class="slide-meta">
+                <span class="course-label">${escapeHtml(slide.course || "General")}</span>
+                <time class="slide-date" datetime="${escapeHtml(slide.date)}">${escapeHtml(slide.date)}</time>
+              </div>
+              <h3><a href="${escapeHtml(slide.url)}" class="slide-link" data-url="${escapeHtml(slide.url)}">${escapeHtml(slide.title)}</a></h3>
+              ${slide.description ? `<p class="slide-desc">${escapeHtml(slide.description)}</p>` : ""}
+              <div class="slide-facts">
+                ${slide.author ? `<span>${escapeHtml(slide.author)}</span>` : ""}
+                ${slide.slide_count ? `<span>${slide.slide_count} diapositivas</span>` : ""}
+                ${slide.duration_minutes ? `<span>${slide.duration_estimated ? "≈" : ""}${slide.duration_minutes} min</span>` : ""}
+              </div>
+              <div class="tags">
+                ${(slide.tags || []).map(tag => `<button class="tag" type="button" data-tag="${escapeHtml(tag)}">#${escapeHtml(tag)}</button>`).join("")}
+              </div>
+              <div class="slide-card-actions">
+                <button class="card-action favorite-btn" type="button" data-url="${escapeHtml(slide.url)}" aria-pressed="${favorites.includes(slide.url)}">${favorites.includes(slide.url) ? "★ Guardada" : "☆ Guardar"}</button>
+                <button class="card-action collection-btn" type="button" data-url="${escapeHtml(slide.url)}" data-remove="${Boolean(inCollection)}">${inCollection ? "Quitar de colección" : "Añadir a colección"}</button>
+                ${progress > 1 ? `<a class="card-action resume-link" href="${escapeHtml(resumeUrl(slide.url, progress))}">Continuar en diapositiva ${progress}</a>` : ""}
+              </div>
+              ${related ? `<div class="related-decks"><span>Relacionadas:</span> ${related}</div>` : ""}
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      resultsContainer.querySelectorAll(".slide-link").forEach(link => {
+        link.addEventListener("click", () => {
+          const slideObj = slidesData.find(s => s.url === link.dataset.url);
+          if (slideObj) saveRecentlyViewed(slideObj);
+        });
+      });
+
+      resultsContainer.querySelectorAll(".tag").forEach(tagBtn => {
+        tagBtn.addEventListener("click", () => {
+          searchInput.value = tagBtn.dataset.tag;
+          applyFilters();
+          searchInput.focus();
+        });
+      });
+
+      resultsContainer.querySelectorAll(".favorite-btn").forEach(button => {
+        button.addEventListener("click", () => toggleFavorite(button.dataset.url));
+      });
+      resultsContainer.querySelectorAll(".collection-btn").forEach(button => {
+        button.addEventListener("click", () => button.dataset.remove === "true"
+          ? removeFromCollection(button.dataset.url)
+          : openCollectionDialog(button.dataset.url));
+      });
+    }
+
+    function progressStorageKey(url) {
+      return `${PROGRESS_STORAGE_PREFIX}${new URL(url, window.location.href).pathname}`;
+    }
+
+    function getSlideProgress(url) {
+      try {
+        const progress = Number(localStorage.getItem(progressStorageKey(url)) || 0);
+        return Number.isInteger(progress) && progress > 0 ? progress : 0;
+      } catch {
+        return 0;
+      }
+    }
+
+    function resumeUrl(url, slideNumber) {
+      const target = new URL(url, window.location.href);
+      target.searchParams.set("slide", String(slideNumber));
+      return target.href;
+    }
+
+    function relatedSlides(slide) {
+      const tags = new Set((slide.tags || []).map(tag => tag.toLowerCase()));
+      return slidesData
+        .filter(candidate => candidate.url !== slide.url)
+        .map(candidate => ({
+          slide: candidate,
+          score: (candidate.tags || []).filter(tag => tags.has(tag.toLowerCase())).length + (candidate.course === slide.course && candidate.course !== "General" ? 1 : 0),
+        }))
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score || b.slide.date.localeCompare(a.slide.date))
+        .slice(0, 2)
+        .map(item => item.slide);
+    }
+
+    // 5. Gestión de "Abiertas recientemente" en localStorage
+    function saveRecentlyViewed(slide) {
+      const stored = readStorage(RECENT_STORAGE_KEY, []);
+      let recent = Array.isArray(stored) ? stored : [];
+      recent = recent.filter(item => item.url !== slide.url);
+      recent.unshift({ title: slide.title, course: slide.course, url: slide.url, date: slide.date });
+      writeStorage(RECENT_STORAGE_KEY, recent.slice(0, 4));
+    }
+
+    function renderRecentlyViewed() {
+      const storedRecent = readStorage(RECENT_STORAGE_KEY, []);
+      const recent = Array.isArray(storedRecent) ? storedRecent.filter(item => item && item.url) : [];
+      const section = document.getElementById("recent-viewed-section");
+      const container = document.getElementById("recent-viewed-container");
+
+      if (recent.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      container.innerHTML = recent.map(item => `
+        <a href="${escapeHtml(item.url)}" class="recent-item" data-url="${escapeHtml(item.url)}">
+          <strong>${escapeHtml(item.title)}</strong>
+          <span>${escapeHtml(item.course)} · ${escapeHtml(item.date)}</span>
+        </a>
+      `).join("");
+    }
+
+    function readStorage(key, fallback) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key) || "null");
+        return value == null ? fallback : value;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function writeStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        document.getElementById("demo-warning").textContent = "No se pudo guardar en este navegador. Revisa la configuración de almacenamiento.";
+        document.getElementById("demo-warning").style.display = "block";
+      }
+    }
+
+    function toggleFavorite(url) {
+      favorites = favorites.includes(url) ? favorites.filter(item => item !== url) : [url, ...favorites];
+      writeStorage(FAVORITES_STORAGE_KEY, favorites);
+      renderLibraryFilter();
+      applyFilters();
+    }
+
+    function openCollectionDialog(url = "") {
+      pendingCollectionUrl = url;
+      collectionError.textContent = "";
+      collectionName.value = "";
+      collectionChoice.innerHTML = `<option value="">Elegir una colección</option>${collections.map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join("")}`;
+      document.getElementById("collection-dialog-title").textContent = url ? "Guardar en una colección" : "Crear una colección";
+      collectionDialog.showModal();
+      collectionName.focus();
+    }
+
+    document.getElementById("new-collection-btn").addEventListener("click", () => openCollectionDialog());
+    document.getElementById("cancel-collection-btn").addEventListener("click", () => collectionDialog.close());
+    document.getElementById("delete-collection-btn").addEventListener("click", () => {
+      const id = activeShelf.startsWith("collection:") ? activeShelf.slice("collection:".length) : "";
+      const collection = collections.find(item => item.id === id);
+      if (!collection || !window.confirm(`¿Eliminar la colección “${collection.name}”?`)) return;
+      collections = collections.filter(item => item.id !== id);
+      activeShelf = "all";
+      writeStorage(COLLECTIONS_STORAGE_KEY, collections);
+      renderLibraryFilter();
+      applyFilters();
+    });
+    document.getElementById("collection-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const name = collectionName.value.trim();
+      let collection = name
+        ? collections.find(item => item.name.toLocaleLowerCase() === name.toLocaleLowerCase())
+        : collections.find(item => item.id === collectionChoice.value);
+
+      if (!collection && name) {
+        collection = {
+          id: `collection-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          name,
+          urls: [],
+        };
+        collections.push(collection);
+      }
+      if (!collection) {
+        collectionError.textContent = "Elige una colección o escribe un nombre para crearla.";
+        return;
+      }
+      if (pendingCollectionUrl && !collection.urls.includes(pendingCollectionUrl)) {
+        collection.urls.push(pendingCollectionUrl);
+      }
+
+      writeStorage(COLLECTIONS_STORAGE_KEY, collections);
+      activeShelf = `collection:${collection.id}`;
+      renderLibraryFilter();
+      applyFilters();
+      collectionDialog.close();
+    });
+
+    function removeFromCollection(url) {
+      const id = activeShelf.startsWith("collection:") ? activeShelf.slice("collection:".length) : "";
+      const collection = collections.find(item => item.id === id);
+      if (!collection) return;
+      collection.urls = collection.urls.filter(item => item !== url);
+      writeStorage(COLLECTIONS_STORAGE_KEY, collections);
+      renderLibraryFilter();
+      applyFilters();
+    }
+
+    document.getElementById("clear-recent-btn").addEventListener("click", () => {
+      writeStorage(RECENT_STORAGE_KEY, []);
+      renderRecentlyViewed();
+    });
+
+    // 6. Eventos del buscador y atajos de teclado ('/' y 'Escape')
+    searchInput.addEventListener("input", applyFilters);
+    libraryFilter.addEventListener("change", () => {
+      activeShelf = libraryFilter.value;
+      renderLibraryFilter();
+      applyFilters();
+    });
+    sortSelect.addEventListener("change", applyFilters);
+
+    searchInput.addEventListener("focus", () => { kbdHint.textContent = "Esc"; });
+    searchInput.addEventListener("blur", () => { kbdHint.textContent = "/"; });
+
+    window.addEventListener("keydown", (e) => {
+      if (collectionDialog.open) return;
+      if (e.key === "/" && document.activeElement !== searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      } else if (e.key === "Escape" && (document.activeElement === searchInput || searchInput.value || activeCourse !== "Todos" || activeShelf !== "all")) {
+        searchInput.value = "";
+        searchInput.blur();
+        activeCourse = "Todos";
+        activeShelf = "all";
+        renderCourseFilters();
+        renderLibraryFilter();
+        applyFilters();
+      }
+    });
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    init();
+  </script>
+</body>
+</html>

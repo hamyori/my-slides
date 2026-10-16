@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Versiones Moderno y Reproducibilidad</title>
+    <meta name="date" content="2026-10-03">
+    <meta name="course" content="Ingeniería en Sistemas de Información">
+    <meta name="tags" content="git, github, control de versiones, reproducibilidad, visión artificial, canny, termux">
+    <meta name="description" content="Recorrido por el flujo de Git, la reproducibilidad entre dispositivos y una demostración de Canny en Android con Termux.">
+    <meta name="author" content="Grupo 5">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === THEME TOKENS === */
+        :root {
+            --coral: #E85D5D;
+            --coral-dark: #D44A4A;
+            --cream: #F5F0E8;
+            --cream-dark: #E8E0D4;
+            --black: #1A1A1A;
+            --gray: #6B6B6B;
+            --light-gray: #B0B0B0;
+            --white: #FFFFFF;
+            --stage-bg: #1A1A1A;
+            --slide-bg: #F5F0E8;
+            --font-display: "Bebas Neue", sans-serif;
+            --font-body: "Inter", sans-serif;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* === RESET AND FIXED STAGE BASE === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { font-family: var(--font-body); color: var(--black); }
+        button { font: inherit; }
+
+        /* ===========================================
+           FIXED 16:9 STAGE: MANDATORY BASE STYLES
+           Include this ENTIRE file in every presentation.
+           Slides are authored at 1920×1080 and scaled as a whole.
+           =========================================== */
+
+        /* 1. Lock the browser viewport */
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+
+        /* 2. Full-window deck viewport */
+        .deck-viewport {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+
+        /* 3. Fixed 16:9 design canvas.
+           JavaScript sets transform: translate(...) scale(...). */
+        .deck-stage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            transform-origin: 0 0;
+            background: var(--slide-bg, #fff);
+        }
+
+        /* 4. Slides stack inside the fixed stage.
+           Content must be laid out at 1920×1080, not reflowed per device. */
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            background: var(--slide-bg, #fff);
+        }
+
+        .slide.active,
+        .slide.visible {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 1;
+        }
+
+        /* 5. Keep media inside authored slide bounds */
+        img,
+        video,
+        canvas,
+        svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* 6. Presentation chrome stays outside the slide design system */
+        .deck-controls {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        /* 7. Print one fixed-size slide per page */
+        @media print {
+            html,
+            body {
+                width: 1920px;
+                height: auto;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-viewport {
+                position: static;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-stage {
+                position: static;
+                width: auto;
+                height: auto;
+                transform: none !important;
+                background: none;
+            }
+
+            .slide {
+                position: relative;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                width: 1920px;
+                height: 1080px;
+                break-after: page;
+                page-break-after: always;
+            }
+
+            .slide:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+
+            .deck-controls {
+                display: none !important;
+            }
+        }
+
+        /* 8. Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+        }
+
+        /* === SHARED CORAL SYSTEM === */
+        .display, .hero-title, .section-title, .card-title, .command, .big-number, .stat, .quote-mark, .step-number {
+            font-family: var(--font-display);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 0.92;
+        }
+        .display { font-size: 72px; }
+        .hero-title { font-size: 122px; letter-spacing: 4px; }
+        .section-title { font-size: 84px; }
+        .eyebrow, .micro, .label {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+        .eyebrow { color: var(--coral); }
+        .body { font-size: 25px; line-height: 1.42; color: var(--gray); }
+        .body-small { font-size: 21px; line-height: 1.42; color: var(--gray); }
+        .muted { color: var(--light-gray); }
+        .coral-surface { background: var(--coral); }
+        .black-surface { background: var(--black); color: var(--cream); }
+        .cream-surface { background: var(--cream); }
+        .hatch::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(0,0,0,0.06) 20px, rgba(0,0,0,0.06) 40px);
+            pointer-events: none;
+        }
+        .rule { height: 4px; width: 84px; background: var(--coral); }
+        .slide-pad { padding: 78px 100px; }
+        .topline { position: absolute; top: 0; left: 0; right: 0; height: 8px; background: var(--coral); }
+        .page-id { position: absolute; right: 100px; bottom: 48px; font-family: var(--font-display); font-size: 30px; letter-spacing: 2px; }
+        .slide .reveal { opacity: 0; transform: translateY(28px); transition: opacity .65s var(--ease-out-expo), transform .65s var(--ease-out-expo); }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+        .slide.visible .reveal:nth-child(2) { transition-delay: .1s; }
+        .slide.visible .reveal:nth-child(3) { transition-delay: .2s; }
+        .slide.visible .reveal:nth-child(4) { transition-delay: .3s; }
+        .slide.visible .reveal:nth-child(5) { transition-delay: .4s; }
+
+        /* === SLIDE 01: COVER === */
+        .cover { display: grid; grid-template-rows: 360px 720px; background: var(--cream); }
+        .cover-top { position: relative; overflow: hidden; padding: 58px 100px; background: var(--coral); }
+        .cover-top .zigzag { position: absolute; right: 90px; top: 54px; width: 470px; height: 130px; opacity: .22; }
+        .cover-top .cover-kicker { position: relative; z-index: 1; color: var(--black); }
+        .cover-main { display: grid; grid-template-columns: 62% 38%; }
+        .cover-copy { padding: 58px 100px 44px; background: var(--cream); }
+        .cover-copy .hero-title { max-width: 950px; margin: 18px 0 25px; font-size: 108px; }
+        .cover-copy .subtitle { max-width: 820px; font-size: 27px; line-height: 1.35; color: var(--gray); }
+        .cover-footer { margin-top: 44px; display: flex; gap: 55px; border-top: 3px solid rgba(26,26,26,.16); padding-top: 24px; }
+        .cover-footer div { max-width: 260px; }
+        .cover-footer .label { color: var(--gray); font-size: 11px; letter-spacing: 2px; }
+        .cover-footer .value { margin-top: 10px; font-size: 18px; line-height: 1.35; }
+        .cover-block { position: relative; overflow: hidden; padding: 76px 62px; background: var(--black); color: var(--cream); }
+        .cover-block::after { content: "GIT"; position: absolute; bottom: -34px; right: -5px; color: var(--coral); font-family: var(--font-display); font-size: 285px; letter-spacing: 10px; opacity: .95; }
+        .cover-block .block-label { position: relative; z-index: 1; color: var(--coral); }
+        .cover-block .block-copy { position: relative; z-index: 1; max-width: 370px; margin-top: 38px; font-size: 24px; line-height: 1.35; }
+
+        /* === SLIDE 02: PROBLEM === */
+        .problem { background: var(--cream); }
+        .problem-head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 44px; }
+        .problem-head .section-title { max-width: 980px; }
+        .problem-head .big-number { font-size: 150px; color: var(--cream-dark); line-height: .72; }
+        .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .info-card { position: relative; min-height: 500px; padding: 36px 34px 38px; background: var(--white); border-top: 7px solid var(--coral); }
+        .info-card .card-number { color: var(--coral); font-family: var(--font-display); font-size: 70px; letter-spacing: 2px; }
+        .info-card .card-title { font-size: 43px; margin: 30px 0 20px; }
+        .info-card .card-text { font-size: 23px; line-height: 1.45; color: var(--gray); }
+        .info-card .card-footer { position: absolute; left: 34px; right: 34px; bottom: 34px; padding-top: 20px; border-top: 2px solid var(--cream-dark); font-size: 17px; font-weight: 700; line-height: 1.4; }
+        .info-card .card-footer::before { content: "EFECTO"; display: block; margin-bottom: 8px; color: var(--coral); font-size: 11px; letter-spacing: 3px; }
+
+        /* === SLIDE 03: ARCHITECTURE === */
+        .architecture { background: var(--black); color: var(--cream); }
+        .architecture .section-title { max-width: 920px; }
+        .architecture .eyebrow { color: var(--coral); }
+        .architecture-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 46px; }
+        .zone { position: relative; min-height: 445px; padding: 34px 34px 30px; color: var(--black); overflow: hidden; }
+        .zone::after { content: attr(data-number); position: absolute; right: 18px; top: 6px; font-family: var(--font-display); font-size: 180px; line-height: 1; opacity: .12; }
+        .zone:nth-child(1) { background: var(--cream); }
+        .zone:nth-child(2) { background: var(--coral); }
+        .zone:nth-child(3) { background: var(--cream-dark); }
+        .zone .zone-label { font-size: 13px; font-weight: 700; letter-spacing: 3px; }
+        .zone .card-title { font-size: 51px; margin: 42px 0 22px; }
+        .zone ul { list-style: none; font-size: 21px; line-height: 1.45; }
+        .zone li { margin-bottom: 13px; padding-left: 22px; position: relative; }
+        .zone li::before { content: ""; position: absolute; left: 0; top: 11px; width: 9px; height: 9px; background: var(--black); }
+        .flow-strip { margin-top: 28px; padding: 19px 28px; background: var(--coral); color: var(--black); font-family: var(--font-display); font-size: 31px; letter-spacing: 3px; display: flex; align-items: center; justify-content: center; gap: 25px; }
+        .flow-strip span { color: var(--black); }
+        .flow-strip b { font-family: var(--font-body); font-size: 20px; }
+
+        /* === SLIDE 04: COMMAND FLOW === */
+        .flow { background: var(--cream); }
+        .flow .section-title { max-width: 1000px; }
+        .flow-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 54px; }
+        .flow-step { min-height: 470px; background: var(--black); color: var(--cream); padding: 30px 28px; border-top: 7px solid var(--coral); }
+        .flow-step .step-number { font-size: 72px; color: var(--coral); }
+        .flow-step .command { margin-top: 34px; min-height: 72px; font-size: 37px; color: var(--cream); letter-spacing: 1px; }
+        .flow-step .step-title { margin-top: 30px; color: var(--coral); font-size: 13px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase; }
+        .flow-step p { margin-top: 17px; color: var(--cream); font-size: 19px; line-height: 1.48; }
+        .flow-step .locality { margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(245,240,232,.25); font-size: 15px; color: var(--light-gray); }
+        .flow-step .locality strong { color: var(--coral); }
+
+        /* === SLIDE 05: GIT VS GITHUB === */
+        .compare { display: grid; grid-template-columns: 39% 61%; background: var(--coral); }
+        .compare-intro { position: relative; overflow: hidden; padding: 82px 65px 80px 100px; }
+        .compare-intro::after { content: "≠"; position: absolute; left: 30px; bottom: -42px; font-family: var(--font-display); font-size: 380px; opacity: .22; }
+        .compare-intro .section-title { position: relative; z-index: 1; font-size: 95px; }
+        .compare-intro .body { position: relative; z-index: 1; margin-top: 32px; color: var(--black); max-width: 520px; }
+        .compare-table { background: var(--black); color: var(--cream); padding: 88px 100px 78px 72px; }
+        .compare-row { display: grid; grid-template-columns: 28% 36% 36%; border-bottom: 1px solid rgba(245,240,232,.2); min-height: 122px; align-items: center; }
+        .compare-row:first-child { border-bottom: 3px solid var(--coral); min-height: 70px; }
+        .compare-row > div { padding: 18px 18px 18px 0; font-size: 19px; line-height: 1.35; }
+        .compare-row .aspect { color: var(--coral); font-size: 14px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+        .compare-row .head { font-family: var(--font-display); font-size: 42px; color: var(--cream); letter-spacing: 2px; }
+        .compare-row strong { color: var(--coral); font-weight: 600; }
+
+        /* === SLIDE 06: README === */
+        .readme { display: grid; grid-template-columns: 40% 60%; background: var(--cream); }
+        .readme-left { position: relative; overflow: hidden; padding: 78px 70px 80px 100px; background: var(--coral); }
+        .readme-left::after { content: "#"; position: absolute; right: 30px; bottom: -45px; font-family: var(--font-display); font-size: 430px; opacity: .18; }
+        .readme-left .section-title { position: relative; z-index: 1; font-size: 112px; }
+        .readme-left .body { position: relative; z-index: 1; margin-top: 35px; max-width: 540px; color: var(--black); }
+        .readme-right { padding: 80px 100px 80px 70px; }
+        .readme-right .section-title { font-size: 65px; }
+        .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 40px; margin-top: 40px; }
+        .check-item { display: grid; grid-template-columns: 68px 1fr; gap: 18px; align-items: start; min-height: 150px; padding-top: 18px; border-top: 5px solid var(--coral); }
+        .check-item .check-number { font-family: var(--font-display); font-size: 64px; color: var(--coral); line-height: .9; }
+        .check-item h3 { font-family: var(--font-display); font-size: 33px; letter-spacing: 1px; line-height: 1; }
+        .check-item p { margin-top: 10px; font-size: 18px; color: var(--gray); line-height: 1.4; }
+
+        /* === SLIDE 07: REPRODUCIBILITY === */
+        .repro { background: var(--black); color: var(--cream); padding: 78px 100px; }
+        .repro-head { display: flex; justify-content: space-between; align-items: end; }
+        .repro-head .section-title { max-width: 780px; }
+        .repro-head .big-number { color: var(--coral); font-size: 190px; }
+        .equation { margin-top: 46px; padding: 35px 42px; background: var(--coral); color: var(--black); font-family: var(--font-display); font-size: 49px; letter-spacing: 3px; text-align: center; }
+        .equation small { display: block; margin-top: 17px; font-family: var(--font-body); font-size: 18px; letter-spacing: 1px; font-weight: 600; }
+        .repro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 30px; }
+        .repro-card { min-height: 310px; padding: 30px; background: var(--cream); color: var(--black); border-top: 6px solid var(--coral); }
+        .repro-card .label { color: var(--coral); font-size: 12px; letter-spacing: 3px; }
+        .repro-card h3 { margin-top: 24px; font-family: var(--font-display); font-size: 42px; line-height: .95; letter-spacing: 1px; }
+        .repro-card p { margin-top: 19px; font-size: 19px; line-height: 1.45; color: var(--gray); }
+
+        /* === SLIDE 08: CANNY === */
+        .canny { background: var(--cream); }
+        .canny-head { display: flex; justify-content: space-between; align-items: end; }
+        .canny-head .section-title { max-width: 1050px; }
+        .canny-head .year { font-family: var(--font-display); color: var(--coral); font-size: 92px; letter-spacing: 3px; }
+        .canny-layout { display: grid; grid-template-columns: 43% 57%; gap: 40px; margin-top: 43px; }
+        .canny-visual { position: relative; padding: 25px; background: var(--black); color: var(--cream); min-height: 490px; overflow: hidden; }
+        .canny-visual .visual-label { color: var(--coral); font-size: 13px; font-weight: 700; letter-spacing: 3px; }
+        .canny-svg { display: block; width: 100%; height: 295px; margin-top: 30px; }
+        .visual-caption { position: absolute; left: 25px; right: 25px; bottom: 25px; padding-top: 16px; border-top: 1px solid rgba(245,240,232,.22); font-size: 17px; line-height: 1.35; color: var(--light-gray); }
+        .canny-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 23px; }
+        .canny-step { min-height: 190px; padding: 24px 24px 22px; background: var(--white); border-top: 5px solid var(--coral); }
+        .canny-step .step-number { color: var(--coral); font-size: 50px; }
+        .canny-step h3 { margin-top: 15px; font-family: var(--font-display); font-size: 31px; line-height: 1; letter-spacing: 1px; }
+        .canny-step p { margin-top: 10px; font-size: 16px; line-height: 1.35; color: var(--gray); }
+        .canny-step:last-child { grid-column: 1 / -1; min-height: 128px; }
+
+        /* === SLIDE 09: LIVE DEMO BACKUP === */
+        .demo { display: grid; grid-template-columns: 42% 58%; background: var(--coral); }
+        .demo-left { position: relative; overflow: hidden; padding: 80px 80px 80px 100px; }
+        .demo-left::after { content: "EN VIVO"; position: absolute; left: 60px; bottom: -32px; font-family: var(--font-display); font-size: 205px; letter-spacing: 3px; opacity: .16; white-space: nowrap; }
+        .demo-left .section-title { position: relative; z-index: 1; font-size: 105px; }
+        .demo-left .body { position: relative; z-index: 1; max-width: 560px; margin-top: 30px; color: var(--black); }
+        .demo-right { position: relative; padding: 80px 100px 80px 75px; background: var(--black); color: var(--cream); }
+        .demo-right .section-title { font-size: 65px; color: var(--cream); }
+        .demo-conditions { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 38px; }
+        .condition { min-height: 170px; padding: 25px; background: var(--cream); color: var(--black); border-left: 6px solid var(--coral); }
+        .condition .label { color: var(--coral); font-size: 11px; letter-spacing: 2px; }
+        .condition h3 { margin-top: 16px; font-family: var(--font-display); font-size: 35px; line-height: .95; letter-spacing: 1px; }
+        .condition p { margin-top: 10px; font-size: 16px; line-height: 1.35; color: var(--gray); }
+        .success { margin-top: 26px; padding: 24px 28px; border: 3px solid var(--coral); color: var(--cream); font-size: 22px; line-height: 1.35; }
+        .success strong { color: var(--coral); }
+        .demo-note { margin-top: 20px; color: var(--light-gray); font-size: 16px; line-height: 1.35; }
+
+        /* === SLIDE 10: CLOSING === */
+        .closing { display: grid; grid-template-columns: 43% 57%; background: var(--black); color: var(--cream); }
+        .closing-left { position: relative; overflow: hidden; padding: 80px 75px 80px 100px; background: var(--cream); color: var(--black); }
+        .closing-left::after { content: "?"; position: absolute; bottom: -75px; right: 10px; font-family: var(--font-display); font-size: 450px; color: var(--coral); opacity: .25; }
+        .closing-left .section-title { position: relative; z-index: 1; font-size: 122px; }
+        .closing-left .body { position: relative; z-index: 1; margin-top: 32px; max-width: 490px; color: var(--gray); }
+        .closing-right { padding: 82px 100px 80px 72px; }
+        .closing-right .eyebrow { color: var(--coral); }
+        .closing-right .section-title { margin-top: 20px; font-size: 64px; }
+        .closing-list { margin-top: 40px; display: grid; gap: 22px; }
+        .closing-item { display: grid; grid-template-columns: 80px 1fr; gap: 20px; align-items: start; padding-top: 19px; border-top: 3px solid var(--coral); }
+        .closing-item .big-number { color: var(--coral); font-size: 75px; }
+        .closing-item h3 { font-family: var(--font-display); font-size: 37px; letter-spacing: 1px; }
+        .closing-item p { margin-top: 9px; font-size: 19px; color: var(--light-gray); line-height: 1.4; }
+        .questions { margin-top: 42px; color: var(--coral); font-family: var(--font-display); font-size: 54px; letter-spacing: 4px; }
+
+        /* === OUTSIDE-STAGE NAVIGATION === */
+        .deck-controls { display: flex; align-items: center; gap: 18px; padding: 10px 14px; color: var(--cream); background: rgba(26,26,26,.72); backdrop-filter: blur(8px); }
+        .deck-controls button { width: 38px; height: 38px; border: 1px solid rgba(245,240,232,.35); border-radius: 50%; background: transparent; color: var(--cream); cursor: pointer; }
+        .deck-controls button:hover { background: var(--coral); color: var(--black); border-color: var(--coral); }
+        .deck-controls .tools-trigger { width: auto; border-radius: 2px; padding: 0 13px; font-size: 13px; font-weight: 700; }
+        .progress { width: 115px; height: 3px; background: rgba(245,240,232,.25); }
+        .progress-bar { height: 100%; background: var(--coral); transform-origin: left; }
+        .counter { min-width: 62px; text-align: center; font-family: var(--font-display); letter-spacing: 2px; }
+
+        /* === OUTLINE, STUDY AIDS, AND SHARE TOOLS === */
+        .deck-tools {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            bottom: 88px;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            width: min(390px, calc(100vw - 36px));
+            overflow: hidden;
+            border: 1px solid rgba(245,240,232,.2);
+            background: rgba(26,26,26,.97);
+            color: var(--cream);
+            box-shadow: 0 18px 55px rgba(0,0,0,.35);
+        }
+        .deck-tools[hidden] { display: none; }
+        .tools-head { display: flex; align-items: start; justify-content: space-between; gap: 18px; margin: 0; padding: 20px; border-bottom: 1px solid rgba(245,240,232,.18); }
+        .tools-head p { color: var(--coral); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        .tools-head h2 { margin-top: 8px; font-family: var(--font-display); font-size: 29px; line-height: 1; letter-spacing: 1px; }
+        .tools-close { width: 34px; height: 34px; flex: 0 0 auto; border: 1px solid rgba(245,240,232,.35); background: transparent; color: var(--cream); cursor: pointer; }
+        .tools-tabs { display: flex; gap: 8px; padding: 12px 18px 0; }
+        .tools-tabs button { padding: 8px 10px; border: 1px solid rgba(245,240,232,.2); background: transparent; color: var(--light-gray); cursor: pointer; font-size: 12px; }
+        .tools-tabs button[aria-selected="true"] { border-color: var(--coral); color: var(--coral); }
+        .tools-content { overflow: auto; padding: 14px 18px 20px; }
+        .outline-list { display: grid; gap: 7px; list-style: none; }
+        .outline-list button { width: 100%; padding: 11px; border: 1px solid rgba(245,240,232,.12); background: rgba(245,240,232,.04); color: var(--cream); text-align: left; cursor: pointer; }
+        .outline-list button:hover, .outline-list button[aria-current="step"] { border-color: var(--coral); background: rgba(232,93,93,.12); }
+        .outline-list span { display: block; margin-bottom: 4px; color: var(--coral); font: 12px var(--font-display); letter-spacing: 1px; }
+        .tool-actions { display: flex; gap: 8px; margin-top: 14px; }
+        .tool-actions button { flex: 1; min-height: 38px; border: 1px solid rgba(245,240,232,.25); background: transparent; color: var(--cream); cursor: pointer; font-size: 12px; }
+        .tool-actions button:hover { border-color: var(--coral); color: var(--coral); }
+        .tool-status { min-height: 1.2em; margin-top: 9px; color: var(--coral); font-size: 12px; }
+        .study-content h3 { margin: 20px 0 10px; color: var(--coral); font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; }
+        .study-content details { margin: 8px 0; border: 1px solid rgba(245,240,232,.15); padding: 11px; }
+        .study-content summary { cursor: pointer; font-weight: 600; }
+        .study-content details p, .study-content li { margin-top: 8px; color: var(--light-gray); font-size: 13px; line-height: 1.5; }
+        .study-content ul { padding-left: 20px; }
+        .study-content a { color: #9ecbff; }
+        .reading-content article { margin: 12px 0; padding: 12px; border: 1px solid rgba(245,240,232,.15); }
+        .reading-content h3 { margin: 0 0 8px; color: var(--coral); font-family: var(--font-display); font-size: 19px; }
+        .reading-content h3 button { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+        .reading-content p { color: var(--light-gray); font-size: 13px; line-height: 1.55; }
+        .handout { display: none; }
+        .handout h1, .handout h2 { color: #1a1a1a; }
+        .handout article { margin: 22px 0; break-inside: avoid; }
+        .handout p, .handout li { color: #333; font: 12pt/1.5 Georgia, serif; }
+
+        /* === INLINE EDITOR === */
+        .edit-hotzone { position: fixed; top: 0; left: 0; width: 88px; height: 88px; z-index: 10000; }
+        .edit-toggle { position: fixed; top: 18px; left: 18px; z-index: 10001; opacity: 0; pointer-events: none; padding: 9px 13px; border: 1px solid rgba(245,240,232,.4); background: var(--black); color: var(--cream); cursor: pointer; transition: opacity .3s ease; }
+        .edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+        body.editing [contenteditable="true"] { outline: 2px dashed var(--coral); outline-offset: 4px; cursor: text; }
+        .edit-hint { position: fixed; top: 18px; left: 120px; z-index: 10000; display: none; padding: 10px 14px; background: var(--cream); color: var(--black); font-size: 13px; }
+        body.editing .edit-hint { display: block; }
+        .save-toast { position: fixed; left: 50%; top: 22px; z-index: 10002; transform: translateX(-50%) translateY(-12px); opacity: 0; padding: 11px 18px; background: var(--coral); color: var(--black); font-size: 13px; font-weight: 700; transition: opacity .3s ease, transform .3s ease; }
+        .save-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .exporting .deck-controls, .exporting .edit-hotzone, .exporting .edit-toggle, .exporting .edit-hint, .exporting .save-toast { display: none !important; }
+
+        @media (max-width: 600px) {
+            .deck-tools { top: 10px; right: 10px; bottom: 76px; width: calc(100vw - 20px); }
+            .deck-controls { gap: 8px; padding: 8px; }
+            .progress { width: 55px; }
+            .deck-controls .tools-trigger { padding: 0 8px; font-size: 11px; }
+        }
+
+        @media print {
+            html.print-handout, body.print-handout { width: auto; height: auto; overflow: visible; background: #fff; }
+            body.print-handout .deck-viewport,
+            body.print-handout .deck-tools,
+            body.print-handout .deck-controls,
+            body.print-handout .edit-hotzone,
+            body.print-handout .edit-toggle,
+            body.print-handout .edit-hint,
+            body.print-handout .save-toast { display: none !important; }
+            body.print-handout #handout { display: block !important; padding: 18mm; color: #111; }
+            body.print-handout #handout details p { display: block; }
+            body.print-handout #handout a { color: #111; text-decoration: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="deck-viewport">
+        <main class="deck-stage" id="deckStage">
+            <!-- Speaker notes: Presentar el problema y anunciar que la solución es cambiar copias manuales por historial auditable. -->
+            <section class="slide cover active visible" data-surface="coral">
+                <div class="cover-top hatch">
+                    <div class="cover-kicker eyebrow reveal">GRUPO 5 / INGENIERÍA EN SISTEMAS DE INFORMACIÓN</div>
+                    <svg class="zigzag" viewBox="0 0 470 130" aria-hidden="true"><path d="M0 80 L35 20 L70 80 L105 20 L140 80 L175 20 L210 80 L245 20 L280 80 L315 20 L350 80 L385 20 L420 80 L455 20" fill="none" stroke="#1A1A1A" stroke-width="5"/></svg>
+                </div>
+                <div class="cover-main">
+                    <div class="cover-copy">
+                        <div class="eyebrow reveal">CONTROL DE VERSIONES + VISIÓN ARTIFICIAL</div>
+                        <h1 class="hero-title reveal" contenteditable="true">CONTROL DE VERSIONES<br>MODERNO Y<br>REPRODUCIBILIDAD</h1>
+                        <div class="rule reveal"></div>
+                        <p class="subtitle reveal" contenteditable="true">De la teoría de grafos en Git al procesamiento de imágenes con Canny en Termux.</p>
+                        <div class="cover-footer reveal">
+                            <div><div class="label">TEORÍA</div><div class="value">Git · GitHub · README.md</div></div>
+                            <div><div class="label">DEMOSTRACIÓN</div><div class="value">Canny en Android · Termux CLI</div></div>
+                            <div><div class="label">UBICACIÓN</div><div class="value">Guatemala · 2026</div></div>
+                        </div>
+                    </div>
+                    <div class="cover-block hatch">
+                        <div class="block-label eyebrow reveal">UNA IDEA CENTRAL</div>
+                        <p class="block-copy reveal">El código no debería depender de una carpeta llamada <strong>final_v2.zip</strong> ni de una máquina específica.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Speaker notes: Usar ejemplos cotidianos y evitar vocabulario de consultoría. -->
+            <section class="slide problem slide-pad cream-surface">
+                <div class="topline"></div>
+                <div class="problem-head">
+                    <div><div class="eyebrow reveal">01 / CONTEXTO</div><h2 class="section-title reveal">¿POR QUÉ FALLA EL DESARROLLO SIN CONTROL DE VERSIONES?</h2></div>
+                    <div class="big-number reveal">03</div>
+                </div>
+                <div class="card-grid">
+                    <article class="info-card reveal"><div class="card-number">01</div><h3 class="card-title">PÉRDIDA DE TRAZABILIDAD</h3><p class="card-text">Copias como <strong>proyecto_final_v2.zip</strong> no dicen quién cambió el código, cuándo lo hizo ni por qué.</p><div class="card-footer">No se puede auditar ni volver atrás con precisión.</div></article>
+                    <article class="info-card reveal"><div class="card-number">02</div><h3 class="card-title">SOBRESCRITURA SILENCIOSA</h3><p class="card-text">Dos personas editan el mismo archivo. La última en guardar puede borrar el trabajo de la primera.</p><div class="card-footer">El error aparece tarde, cuando ya es difícil reconstruirlo.</div></article>
+                    <article class="info-card reveal"><div class="card-number">03</div><h3 class="card-title">UN SOLO PUNTO DE FALLA</h3><p class="card-text">En modelos centralizados como SVN o CVS, el historial depende de un servidor único.</p><div class="card-footer">Si el servidor cae, todo el equipo queda detenido.</div></article>
+                </div>
+                <div class="page-id">02</div>
+            </section>
+
+            <!-- Speaker notes: Explicar que staging existe para seleccionar cambios y crear commits lógicos. -->
+            <section class="slide architecture slide-pad black-surface">
+                <div class="eyebrow reveal">02 / ARQUITECTURA INTERNA</div>
+                <h2 class="section-title reveal">EL MODELO DE TRES ÁREAS Y EL GRAFO DE COMMITS</h2>
+                <div class="architecture-grid">
+                    <article class="zone reveal" data-number="01"><div class="zone-label">ZONA 1 · MUTABLE</div><h3 class="card-title">WORKING DIRECTORY</h3><ul><li>Archivos locales en disco.</li><li>Aquí se edita, prueba y depura.</li><li>Estado: <strong>untracked / modified</strong>.</li></ul></article>
+                    <article class="zone reveal" data-number="02"><div class="zone-label">ZONA 2 · SELECCIÓN</div><h3 class="card-title">STAGING AREA</h3><ul><li>Selección deliberada de cambios.</li><li>Permite preparar commits limpios.</li><li>Estado: <strong>staged</strong>.</li></ul></article>
+                    <article class="zone reveal" data-number="03"><div class="zone-label">ZONA 3 · INMUTABLE</div><h3 class="card-title">REPOSITORIO LOCAL</h3><ul><li>Base de objetos dentro de <strong>.git/</strong>.</li><li>Cada commit es una instantánea.</li><li>Historial conectado como un DAG.</li></ul></article>
+                </div>
+                <div class="flow-strip reveal"><span>WORKING TREE</span><b>git add</b><span>INDEX</span><b>git commit</b><span>OBJECT DB / HEAD</span></div>
+                <div class="page-id">03</div>
+            </section>
+
+            <!-- Speaker notes: Hacer la secuencia con los cuatro comandos y distinguir lo local de lo remoto. -->
+            <section class="slide flow slide-pad cream-surface">
+                <div class="eyebrow reveal">03 / FLUJO DE OPERACIÓN</div>
+                <h2 class="section-title reveal">DEL ENTORNO LOCAL AL REMOTO</h2>
+                <div class="flow-row">
+                    <article class="flow-step reveal"><div class="step-number">01</div><div class="command">git init</div><div class="step-title">INICIALIZAR</div><p>Crea <strong>.git/</strong>, el puntero HEAD y la base de datos local.</p><div class="locality"><strong>LOCAL</strong> · no requiere internet</div></article>
+                    <article class="flow-step reveal"><div class="step-number">02</div><div class="command">git add<br>&lt;archivo&gt;</div><div class="step-title">PREPARAR</div><p>Selecciona cambios y actualiza el Index con los objetos que formarán la instantánea.</p><div class="locality"><strong>LOCAL</strong> · curar el cambio</div></article>
+                    <article class="flow-step reveal"><div class="step-number">03</div><div class="command">git commit<br>-m "..."</div><div class="step-title">CONFIRMAR</div><p>Guarda autor, fecha, mensaje y referencia al commit padre dentro del DAG.</p><div class="locality"><strong>LOCAL</strong> · historial auditable</div></article>
+                    <article class="flow-step reveal"><div class="step-number">04</div><div class="command">git push<br>&lt;remoto&gt;</div><div class="step-title">PUBLICAR</div><p>Transfiere los objetos faltantes al servidor remoto y sincroniza la rama.</p><div class="locality"><strong>RED</strong> · GitHub u otro remoto</div></article>
+                </div>
+                <div class="page-id">04</div>
+            </section>
+
+            <!-- Speaker notes: Repetir la frase: Git es el motor local; GitHub es la plataforma de colaboración. -->
+            <section class="slide compare">
+                <div class="compare-intro hatch">
+                    <div class="eyebrow reveal">04 / ECOSISTEMA TECNOLÓGICO</div>
+                    <h2 class="section-title reveal">GIT<br>VS.<br>GITHUB</h2>
+                    <p class="body reveal">No son lo mismo. Uno registra el historial; el otro facilita compartirlo y trabajar en equipo.</p>
+                </div>
+                <div class="compare-table">
+                    <div class="compare-row reveal"><div class="aspect">ASPECTO</div><div class="head">GIT</div><div class="head">GITHUB</div></div>
+                    <div class="compare-row reveal"><div class="aspect">DEFINICIÓN</div><div>Motor de control de versiones distribuido.</div><div>Plataforma web para alojar repositorios.</div></div>
+                    <div class="compare-row reveal"><div class="aspect">ENTORNO</div><div>Vive en la máquina del desarrollador.</div><div>Vive en servidores de la nube.</div></div>
+                    <div class="compare-row reveal"><div class="aspect">CONEXIÓN</div><div>Funciona sin internet.</div><div>Necesita red para sincronizar.</div></div>
+                    <div class="compare-row reveal"><div class="aspect">FUNCIÓN</div><div>Ramas, fusiones y commits.</div><div><strong>Pull Requests</strong>, Issues, CI/CD y permisos.</div></div>
+                </div>
+                <div class="page-id" style="color:var(--cream);">05</div>
+            </section>
+
+            <!-- Speaker notes: Presentar README como la interfaz de entrada para un colaborador nuevo. -->
+            <section class="slide readme">
+                <div class="readme-left hatch">
+                    <div class="eyebrow reveal">05 / DOCUMENTACIÓN</div>
+                    <h2 class="section-title reveal">README<br>COMO<br>INTERFAZ</h2>
+                    <p class="body reveal">Un repositorio profesional debe explicar cómo clonar, instalar y ejecutar el proyecto sin depender de quien lo creó.</p>
+                </div>
+                <div class="readme-right">
+                    <div class="eyebrow reveal">LO MÍNIMO NECESARIO</div>
+                    <h2 class="section-title reveal">SEIS SECCIONES QUE REDUCEN LA FRICCIÓN</h2>
+                    <div class="checklist">
+                        <article class="check-item reveal"><div class="check-number">01</div><div><h3>PROPÓSITO</h3><p>Qué problema resuelve y para quién.</p></div></article>
+                        <article class="check-item reveal"><div class="check-number">02</div><div><h3>REQUISITOS</h3><p>Runtime, versiones y dependencias del sistema.</p></div></article>
+                        <article class="check-item reveal"><div class="check-number">03</div><div><h3>INSTALACIÓN</h3><p>Comandos exactos para preparar el entorno con uv.</p></div></article>
+                        <article class="check-item reveal"><div class="check-number">04</div><div><h3>EJECUCIÓN</h3><p>Ejemplos de CLI con sus parámetros.</p></div></article>
+                        <article class="check-item reveal"><div class="check-number">05</div><div><h3>ESTRUCTURA</h3><p>Mapa breve de carpetas y módulos.</p></div></article>
+                        <article class="check-item reveal"><div class="check-number">06</div><div><h3>LICENCIA</h3><p>Permisos de uso, distribución y autoría.</p></div></article>
+                    </div>
+                </div>
+                <div class="page-id">06</div>
+            </section>
+
+            <!-- Speaker notes: Explicar la ecuación como la defensa contra "en mi máquina sí funcionaba". -->
+            <section class="slide repro">
+                <div class="repro-head"><div><div class="eyebrow reveal">06 / CALIDAD E INGENIERÍA</div><h2 class="section-title reveal">REPRODUCIBILIDAD:<br>EL MISMO CÓDIGO, EL MISMO RESULTADO</h2></div><div class="big-number reveal">03</div></div>
+                <div class="equation reveal">CÓDIGO VERSIONADO + ENTORNO DESCRITO = MISMO RESULTADO<small>La meta: eliminar “en mi máquina sí funcionaba”.</small></div>
+                <div class="repro-grid">
+                    <article class="repro-card reveal"><div class="label">01 / ENTORNO</div><h3>UV + PAQUETES ESTABLES</h3><p><strong>uv</strong> prepara el entorno. En Termux se reutiliza NumPy precompilado para Android.</p></article>
+                    <article class="repro-card reveal"><div class="label">02 / EJECUCIÓN</div><h3>TRABAJAR HEADLESS</h3><p>El procesamiento no depende de una pantalla, X11 o una interfaz gráfica.</p></article>
+                    <article class="repro-card reveal"><div class="label">03 / COMPARACIÓN</div><h3>MISMA ENTRADA, MISMA SALIDA</h3><p>La misma prueba se compara en Linux <strong>x86_64</strong> y Android <strong>ARM64</strong>.</p></article>
+                </div>
+                <div class="page-id">07</div>
+            </section>
+
+            <!-- Speaker notes: Explicar las cinco fases y señalar que la ilustración sustituye la imagen con el encabezado mal escrito. -->
+            <section class="slide canny slide-pad cream-surface">
+                <div class="canny-head"><div><div class="eyebrow reveal">07 / CASO DE ESTUDIO</div><h2 class="section-title reveal">CANNY: CINCO PASOS PARA ENCONTRAR BORDES</h2></div><div class="year reveal">1986</div></div>
+                <div class="canny-layout">
+                    <div class="canny-visual reveal">
+                        <div class="visual-label">ANTES / DESPUÉS · ESQUEMA VISUAL</div>
+                        <svg class="canny-svg" viewBox="0 0 740 295" role="img" aria-label="Imagen en escala de grises y resultado de bordes">
+                            <rect x="10" y="20" width="330" height="230" fill="#B0B0B0"/>
+                            <rect x="30" y="40" width="290" height="190" fill="#8B8B8B"/>
+                            <circle cx="185" cy="133" r="62" fill="#C9C9C9"/>
+                            <rect x="92" y="95" width="185" height="110" fill="none" stroke="#E8E0D4" stroke-width="14"/>
+                            <path d="M370 135 H410" stroke="#E85D5D" stroke-width="6"/>
+                            <path d="M400 119 L420 135 L400 151" fill="none" stroke="#E85D5D" stroke-width="6"/>
+                            <rect x="440" y="20" width="290" height="230" fill="#080808"/>
+                            <circle cx="585" cy="133" r="64" fill="none" stroke="#FFFFFF" stroke-width="5"/>
+                            <rect x="490" y="92" width="190" height="112" fill="none" stroke="#FFFFFF" stroke-width="5"/>
+                            <text x="18" y="278" fill="#F5F0E8" font-family="Inter" font-size="16">IMAGEN DE ENTRADA</text>
+                            <text x="448" y="278" fill="#F5F0E8" font-family="Inter" font-size="16">BORDES DETECTADOS</text>
+                        </svg>
+                        <p class="visual-caption">Canny no reconoce objetos: marca las líneas donde cambia la intensidad y descarta ruido.</p>
+                    </div>
+                    <div class="canny-steps">
+                        <article class="canny-step reveal"><div class="step-number">01</div><h3>SUAVIZAR</h3><p>Reduce pequeños cambios y ruido.</p></article>
+                        <article class="canny-step reveal"><div class="step-number">02</div><h3>BUSCAR CAMBIOS</h3><p>Sobel compara píxeles vecinos.</p></article>
+                        <article class="canny-step reveal"><div class="step-number">03</div><h3>ADELGAZAR</h3><p>Conserva la línea más marcada.</p></article>
+                        <article class="canny-step reveal"><div class="step-number">04</div><h3>SEPARAR LO IMPORTANTE</h3><p>Distingue bordes fuertes, posibles y ruido.</p></article>
+                        <article class="canny-step reveal"><div class="step-number">05</div><h3>CONECTAR</h3><p>Conserva posibles bordes unidos a uno fuerte.</p></article>
+                    </div>
+                </div>
+                <div class="page-id">08</div>
+            </section>
+
+            <!-- Speaker notes: Esta diapositiva es respaldo. Proyectar Termux realmente, no simular una terminal. -->
+            <section class="slide demo">
+                <div class="demo-left hatch">
+                    <div class="eyebrow reveal">08 / DEMOSTRACIÓN PRÁCTICA</div>
+                    <h2 class="section-title reveal">EJECUCIÓN<br>EN VIVO</h2>
+                    <p class="body reveal">La consola real de Termux se proyecta durante la demo. Esta diapositiva solo fija el contexto y el criterio de éxito.</p>
+                </div>
+                <div class="demo-right">
+                    <div class="eyebrow reveal">CONDICIONES DE PRUEBA</div>
+                    <h2 class="section-title reveal">CANNY EN ANDROID CON TERMUX</h2>
+                    <div class="demo-conditions">
+                        <article class="condition reveal"><div class="label">HARDWARE</div><h3>ARM64 / AARCH64</h3><p>Dispositivo Android sin cambiar el código fuente.</p></article>
+                        <article class="condition reveal"><div class="label">ENTORNO</div><h3>TERMUX + UV</h3><p>Entorno preparado con uv y paquetes del sistema.</p></article>
+                        <article class="condition reveal"><div class="label">FLUJO</div><h3>CLONAR → PREPARAR → EJECUTAR</h3><p>Repositorio GitHub, NumPy precompilado y modo headless.</p></article>
+                        <article class="condition reveal"><div class="label">IMPLEMENTACIÓN</div><h3>NUMPY + PILLOW</h3><p>Algoritmo modular y liviano, sin OpenCV.</p></article>
+                    </div>
+                    <div class="success reveal"><strong>ÉXITO:</strong> la salida y la cantidad de píxeles detectados coinciden con la corrida en x86_64.</div>
+                    <p class="demo-note reveal">Comando de prueba: <strong>python -m canny --test --ascii-preview</strong>. La pantalla será la del dispositivo real.</p>
+                </div>
+                <div class="page-id" style="color:var(--cream);">09</div>
+            </section>
+
+            <!-- Speaker notes: Resumir las tres ideas y abrir preguntas. -->
+            <section class="slide closing">
+                <div class="closing-left hatch">
+                    <div class="eyebrow reveal">09 / SÍNTESIS Y CIERRE</div>
+                    <h2 class="section-title reveal">TRES<br>IDEAS<br>PARA<br>LLEVAR</h2>
+                    <p class="body reveal">Controlar versiones no es guardar más copias: es hacer explícito el estado del trabajo.</p>
+                </div>
+                <div class="closing-right">
+                    <div class="eyebrow reveal">CONCLUSIONES</div>
+                    <h2 class="section-title reveal">DE LA TRAZABILIDAD A LA PORTABILIDAD</h2>
+                    <div class="closing-list">
+                        <article class="closing-item reveal"><div class="big-number">01</div><div><h3>GIT ES INTEGRIDAD</h3><p>El DAG de commits reemplaza respaldos manuales por un historial auditable.</p></div></article>
+                        <article class="closing-item reveal"><div class="big-number">02</div><div><h3>GITHUB ES COLABORACIÓN</h3><p>Git funciona localmente; GitHub añade sincronización, revisión y automatización.</p></div></article>
+                        <article class="closing-item reveal"><div class="big-number">03</div><div><h3>REPRODUCIBILIDAD ES DISEÑO</h3><p>Un entorno claro y una CLI headless permiten llevar Canny de un PC a un teléfono.</p></div></article>
+                    </div>
+                    <div class="questions reveal">PREGUNTAS</div>
+                </div>
+                <div class="page-id" style="color:var(--cream);">10</div>
+            </section>
+        </main>
+    </div>
+
+    <!-- === OUTSIDE-STAGE CONTROLS === -->
+    <nav class="deck-controls" aria-label="Controles de presentación">
+        <button id="prevBtn" aria-label="Diapositiva anterior">‹</button>
+        <div class="progress" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="counter" id="counter">01 / 10</div>
+        <button id="nextBtn" aria-label="Siguiente diapositiva">›</button>
+        <button class="tools-trigger" id="toolsBtn" aria-expanded="false" aria-controls="deckTools">ÍNDICE</button>
+    </nav>
+
+    <aside class="deck-tools" id="deckTools" aria-label="Índice y recursos de estudio" hidden>
+        <header class="tools-head">
+            <div><p>Herramientas del deck</p><h2 id="toolsDeckTitle">Presentación</h2></div>
+            <button class="tools-close" id="closeToolsBtn" aria-label="Cerrar panel">×</button>
+        </header>
+        <div class="tools-tabs" role="tablist" aria-label="Contenido del panel">
+            <button type="button" role="tab" id="outlineTab" aria-selected="true" aria-controls="outlinePanel">Diapositivas</button>
+            <button type="button" role="tab" id="readingTab" aria-selected="false" aria-controls="readingPanel">Texto</button>
+            <button type="button" role="tab" id="studyTab" aria-selected="false" aria-controls="studyPanel">Repasar</button>
+        </div>
+        <section class="tools-content" id="outlinePanel" role="tabpanel" aria-labelledby="outlineTab">
+            <ol class="outline-list" id="slideOutline"></ol>
+            <div class="tool-actions">
+                <button type="button" id="shareSlideBtn">Copiar enlace</button>
+                <button type="button" id="printHandoutBtn">Imprimir guía / PDF</button>
+            </div>
+            <p class="tool-status" id="toolStatus" role="status"></p>
+        </section>
+        <section class="tools-content reading-content" id="readingPanel" role="tabpanel" aria-labelledby="readingTab" hidden>
+            <div id="readingContent"></div>
+        </section>
+        <section class="tools-content study-content" id="studyPanel" role="tabpanel" aria-labelledby="studyTab" hidden>
+            <h3>Tarjetas de repaso</h3>
+            <details><summary>¿Qué tres áreas componen el flujo local de Git?</summary><p>El directorio de trabajo, el área de preparación (index) y el repositorio local.</p></details>
+            <details><summary>¿Qué diferencia a Git de GitHub?</summary><p>Git registra versiones de forma distribuida. GitHub aloja repositorios y facilita colaboración, revisión y automatización.</p></details>
+            <details><summary>¿Cuáles son las cinco fases de Canny?</summary><p>Suavizado Gaussiano, cálculo del gradiente, supresión de no-máximos, doble umbral y seguimiento por histéresis.</p></details>
+            <details><summary>¿Qué hace reproducible una ejecución entre equipos?</summary><p>Registrar el código, describir el entorno, fijar dependencias y comparar la misma prueba con la misma entrada.</p></details>
+            <h3>Referencias</h3>
+            <ul>
+                <li><a href="https://git-scm.com/book/en/v2" target="_blank" rel="noreferrer">Scott Chacon y Ben Straub, Pro Git, 2.ª edición.</a></li>
+                <li><a href="https://docs.github.com/" target="_blank" rel="noreferrer">GitHub Docs: colaboración y repositorios.</a></li>
+                <li><a href="https://doi.org/10.1109/TPAMI.1986.4767851" target="_blank" rel="noreferrer">John Canny, “A Computational Approach to Edge Detection”, 1986.</a></li>
+            </ul>
+        </section>
+    </aside>
+
+    <section class="handout" id="handout" aria-label="Guía imprimible"></section>
+
+    <!-- === INLINE EDITING CONTROLS === -->
+    <div class="edit-hotzone" aria-hidden="true"></div>
+    <button class="edit-toggle" id="editToggle" title="Alternar edición">EDITAR</button>
+    <div class="edit-hint">Modo edición: haz clic en cualquier texto editable. Ctrl+S guarda una copia local.</div>
+    <div class="save-toast" id="saveToast">CAMBIOS GUARDADOS</div>
+
+    <script>
+        /* === SLIDE PRESENTATION CONTROLLER === */
+        class SlidePresentation {
+            constructor() {
+                this.slides = [...document.querySelectorAll('.slide')];
+                this.progressKey = `slides_progress_v1:${window.location.pathname}`;
+                const requestedSlide = Number(new URLSearchParams(window.location.search).get('slide'));
+                let savedSlide = 1;
+                try { savedSlide = Number(localStorage.getItem(this.progressKey)) || 1; } catch {}
+                const startSlide = Number.isInteger(requestedSlide) && requestedSlide > 0 ? requestedSlide : savedSlide;
+                this.currentSlide = Math.max(0, Math.min(startSlide - 1, this.slides.length - 1));
+                this.stage = document.getElementById('deckStage');
+                this.progressBar = document.getElementById('progressBar');
+                this.counter = document.getElementById('counter');
+                this.toolsPanel = document.getElementById('deckTools');
+                this.outline = document.getElementById('slideOutline');
+                this.readingContainer = document.getElementById('readingContent');
+                this.wheelLock = false;
+                this.buildOutline();
+                this.setupStageScale();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupWheelNav();
+                this.setupTools();
+                document.getElementById('prevBtn').addEventListener('click', () => this.showSlide(this.currentSlide - 1));
+                document.getElementById('nextBtn').addEventListener('click', () => this.showSlide(this.currentSlide + 1));
+                this.showSlide(this.currentSlide);
+            }
+
+            buildOutline() {
+                const title = document.querySelector('meta[name="title"]')?.content || document.title;
+                document.getElementById('toolsDeckTitle').textContent = title;
+                this.outline.innerHTML = this.slides.map((slide, index) => {
+                    const heading = slide.querySelector('h1, h2, h3');
+                    const label = heading?.textContent.trim() || `Diapositiva ${index + 1}`;
+                    return `<li><button type="button" data-slide="${index}"><span>${String(index + 1).padStart(2, '0')}</span>${escapeDeckHtml(label)}</button></li>`;
+                }).join('');
+                this.outline.querySelectorAll('button').forEach(button => {
+                    button.addEventListener('click', () => this.showSlide(Number(button.dataset.slide)));
+                });
+                this.slides.forEach((slide, index) => {
+                    const clone = slide.cloneNode(true);
+                    clone.querySelectorAll('.page-id, svg, [aria-hidden="true"]').forEach(element => element.remove());
+                    const article = document.createElement('article');
+                    const heading = document.createElement('h3');
+                    const jump = document.createElement('button');
+                    jump.type = 'button';
+                    jump.textContent = `${String(index + 1).padStart(2, '0')} · ${slide.querySelector('h1, h2, h3')?.textContent.trim() || `Diapositiva ${index + 1}`}`;
+                    jump.addEventListener('click', () => this.showSlide(index));
+                    heading.append(jump);
+                    const paragraph = document.createElement('p');
+                    paragraph.textContent = clone.textContent.replace(/\s+/g, ' ').trim();
+                    article.append(heading, paragraph);
+                    this.readingContainer.append(article);
+                });
+            }
+
+            setupTools() {
+                document.getElementById('toolsBtn').addEventListener('click', () => this.toggleTools());
+                document.getElementById('closeToolsBtn').addEventListener('click', () => this.toggleTools(false));
+                document.getElementById('outlineTab').addEventListener('click', () => this.selectToolTab('outline'));
+                document.getElementById('readingTab').addEventListener('click', () => this.selectToolTab('reading'));
+                document.getElementById('studyTab').addEventListener('click', () => this.selectToolTab('study'));
+                document.getElementById('shareSlideBtn').addEventListener('click', () => this.copyCurrentLink());
+                document.getElementById('printHandoutBtn').addEventListener('click', () => this.printHandout());
+                window.addEventListener('afterprint', () => {
+                    document.body.classList.remove('print-handout');
+                    document.documentElement.classList.remove('print-handout');
+                });
+            }
+
+            toggleTools(force) {
+                const shouldOpen = typeof force === 'boolean' ? force : this.toolsPanel.hidden;
+                this.toolsPanel.hidden = !shouldOpen;
+                document.getElementById('toolsBtn').setAttribute('aria-expanded', String(shouldOpen));
+                if (shouldOpen) document.getElementById('outlineTab').focus();
+            }
+
+            selectToolTab(tab) {
+                ['outline', 'reading', 'study'].forEach(name => {
+                    const selected = tab === name;
+                    document.getElementById(`${name}Panel`).hidden = !selected;
+                    document.getElementById(`${name}Tab`).setAttribute('aria-selected', String(selected));
+                });
+            }
+
+            async copyCurrentLink() {
+                const url = new URL(window.location.href);
+                url.searchParams.set('slide', String(this.currentSlide + 1));
+                try {
+                    await navigator.clipboard.writeText(url.href);
+                    document.getElementById('toolStatus').textContent = 'Enlace copiado.';
+                } catch {
+                    window.prompt('Copia el enlace a esta diapositiva:', url.href);
+                }
+            }
+
+            printHandout() {
+                const handout = document.getElementById('handout');
+                handout.replaceChildren();
+                const title = document.createElement('h1');
+                title.textContent = document.title;
+                handout.append(title);
+                this.slides.forEach((slide, index) => {
+                    const clone = slide.cloneNode(true);
+                    clone.querySelectorAll('.page-id, svg, [aria-hidden="true"]').forEach(element => element.remove());
+                    const article = document.createElement('article');
+                    const heading = document.createElement('h2');
+                    heading.textContent = `${String(index + 1).padStart(2, '0')} · ${slide.querySelector('h1, h2, h3')?.textContent.trim() || `Diapositiva ${index + 1}`}`;
+                    const content = document.createElement('p');
+                    content.textContent = clone.textContent.replace(/\s+/g, ' ').trim();
+                    article.append(heading, content);
+                    handout.append(article);
+                });
+
+                const study = document.createElement('section');
+                const studyTitle = document.createElement('h2');
+                studyTitle.textContent = 'Repaso y referencias';
+                study.append(studyTitle);
+                document.querySelectorAll('#studyPanel details').forEach(card => {
+                    const prompt = document.createElement('h3');
+                    prompt.textContent = card.querySelector('summary').textContent;
+                    const answer = document.createElement('p');
+                    answer.textContent = card.querySelector('p').textContent;
+                    study.append(prompt, answer);
+                });
+                const references = document.createElement('ul');
+                document.querySelectorAll('#studyPanel a').forEach(link => {
+                    const item = document.createElement('li');
+                    item.textContent = `${link.textContent} ${link.href}`;
+                    references.append(item);
+                });
+                study.append(references);
+                handout.append(study);
+                document.body.classList.add('print-handout');
+                document.documentElement.classList.add('print-handout');
+                window.print();
+            }
+
+            setupStageScale() {
+                const scale = () => {
+                    const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+                    const x = (window.innerWidth - 1920 * factor) / 2;
+                    const y = (window.innerHeight - 1080 * factor) / 2;
+                    this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+                };
+                scale();
+                window.addEventListener('resize', scale);
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (event) => {
+                    if (event.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return;
+                    if (event.key === 'Escape' && !this.toolsPanel.hidden) { this.toggleTools(false); return; }
+                    if (this.toolsPanel.contains(event.target)) return;
+                    if (event.key.toLowerCase() === 'o') { this.toggleTools(); return; }
+                    if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); this.showSlide(this.currentSlide + 1); }
+                    if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(event.key)) { event.preventDefault(); this.showSlide(this.currentSlide - 1); }
+                });
+            }
+
+            setupTouchNav() {
+                let startX = 0;
+                document.addEventListener('touchstart', (event) => { startX = event.changedTouches[0].screenX; }, { passive: true });
+                document.addEventListener('touchend', (event) => {
+                    if (this.toolsPanel.contains(event.target)) return;
+                    const delta = event.changedTouches[0].screenX - startX;
+                    if (Math.abs(delta) > 50) this.showSlide(this.currentSlide + (delta < 0 ? 1 : -1));
+                }, { passive: true });
+            }
+
+            setupWheelNav() {
+                document.addEventListener('wheel', (event) => {
+                    if (this.toolsPanel.contains(event.target)) return;
+                    if (this.wheelLock || Math.abs(event.deltaY) < 18) return;
+                    this.wheelLock = true;
+                    this.showSlide(this.currentSlide + (event.deltaY > 0 ? 1 : -1));
+                    setTimeout(() => { this.wheelLock = false; }, 650);
+                }, { passive: true });
+            }
+
+            showSlide(index) {
+                if (!this.slides.length) return;
+                this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+                this.slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === this.currentSlide);
+                    slide.classList.toggle('visible', i === this.currentSlide);
+                });
+                const current = String(this.currentSlide + 1).padStart(2, '0');
+                this.counter.textContent = `${current} / ${String(this.slides.length).padStart(2, '0')}`;
+                this.progressBar.style.transform = `scaleX(${(this.currentSlide + 1) / this.slides.length})`;
+                this.outline.querySelectorAll('button').forEach((button, i) => {
+                    if (i === this.currentSlide) button.setAttribute('aria-current', 'step');
+                    else button.removeAttribute('aria-current');
+                });
+                try { localStorage.setItem(this.progressKey, String(this.currentSlide + 1)); } catch {}
+                const url = new URL(window.location.href);
+                url.searchParams.set('slide', String(this.currentSlide + 1));
+                try { window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`); } catch {}
+            }
+        }
+
+        function escapeDeckHtml(value) {
+            return String(value).replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[character]);
+        }
+
+        /* === INLINE EDITOR === */
+        class InlineEditor {
+            constructor() {
+                this.isActive = false;
+                this.toggle = document.getElementById('editToggle');
+                this.toast = document.getElementById('saveToast');
+                this.toggle.addEventListener('click', () => this.toggleEditMode());
+                document.addEventListener('keydown', (event) => {
+                    if ((event.key === 'e' || event.key === 'E') && !event.target.isContentEditable) this.toggleEditMode();
+                    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); this.save(); }
+                });
+                this.setupHover();
+            }
+
+            toggleEditMode() {
+                this.isActive = !this.isActive;
+                document.body.classList.toggle('editing', this.isActive);
+                this.toggle.classList.toggle('active', this.isActive);
+                this.toggle.textContent = this.isActive ? 'SALIR' : 'EDITAR';
+                document.querySelectorAll('[contenteditable]').forEach((element) => { element.contentEditable = this.isActive ? 'true' : 'false'; });
+            }
+
+            setupHover() {
+                const hotzone = document.querySelector('.edit-hotzone');
+                let hideTimeout;
+                const show = () => { clearTimeout(hideTimeout); this.toggle.classList.add('show'); };
+                const hide = () => { hideTimeout = setTimeout(() => { if (!this.isActive) this.toggle.classList.remove('show'); }, 400); };
+                hotzone.addEventListener('mouseenter', show); hotzone.addEventListener('mouseleave', hide);
+                this.toggle.addEventListener('mouseenter', show); this.toggle.addEventListener('mouseleave', hide);
+                hotzone.addEventListener('click', () => this.toggleEditMode());
+            }
+
+            save() {
+                localStorage.setItem('coral-deck-edits', document.querySelector('.deck-stage').innerHTML);
+                this.toast.classList.add('show');
+                setTimeout(() => this.toast.classList.remove('show'), 1500);
+            }
+        }
+
+        /* === LOCAL EDIT RESTORE === */
+        const savedEdits = localStorage.getItem('coral-deck-edits');
+        if (savedEdits && window.location.hash === '#restore') document.getElementById('deckStage').innerHTML = savedEdits;
+        if (navigator.webdriver) document.body.classList.add('exporting');
+        const presentation = new SlidePresentation();
+        const editor = new InlineEditor();
+    </script>
+</body>
+</html>
