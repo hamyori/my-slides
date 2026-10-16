@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Herencia, Sobrescritura y Polimorfismo en C++">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101827"/><stop offset="1" stop-color="#304765"/></linearGradient></defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <path d="M910 0h290v675H750z" fill="#e85d5d" opacity=".9"/>
+  <path d="M0 36h1200" stroke="#e85d5d" stroke-width="12"/>
+  <text x="72" y="115" fill="#a9cfff" font-family="Arial,sans-serif" font-size="24" font-weight="700" letter-spacing="4">ALGORITMOS</text>
+  <text x="72" y="300" fill="#ffffff" font-family="Arial,sans-serif" font-size="58" font-weight="700">Herencia, Sobrescritura y</text><text x="72" y="376" fill="#ffffff" font-family="Arial,sans-serif" font-size="58" font-weight="700">Polimorfismo en C++</text>
+  <text x="74" y="596" fill="#d7e0ea" font-family="Arial,sans-serif" font-size="21" letter-spacing="3">PRESENTACIÓN ACADÉMICA</text>
+</svg>
