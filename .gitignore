@@ -3,6 +3,9 @@ estructura_metadatos.html
 # Ignorar archivos de entorno o secretos
 .env
 
+*.pdf
+2026-09-30-presupuesto-estado/
+
 # Archivos temporales de Python
 __pycache__/
 *.py[cod]
