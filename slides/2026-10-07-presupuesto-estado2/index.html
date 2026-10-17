@@ -1,0 +1,1256 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Exposición oral, en cinco bloques, sobre la estructura temática del Decreto 101-97 de Guatemala.">
+  <title>La Ley que da rumbo al presupuesto · Decreto 101-97</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap" rel="stylesheet">
+  <style>
+    /* === THEME TOKENS: papel, tinta y un acento carmesí === */
+    :root {
+      --stage-bg: #242321;
+      --slide-bg: #faf9f7;
+      --paper: #faf9f7;
+      --paper-shadow: #f1eee8;
+      --ink: #1a1a1a;
+      --body-ink: #413e3a;
+      --muted: #77716b;
+      --rule: #c9c3bb;
+      --accent: #b52332;
+      --accent-soft: #f2e5e4;
+      --green-ink: #3e5946;
+      --title-font: 'Cormorant Garamond', serif;
+      --body-font: 'Source Serif 4', serif;
+      --label-font: 'IBM Plex Mono', monospace;
+      --ease-editorial: cubic-bezier(.16, 1, .3, 1);
+    }
+
+    /* === FIXED 16:9 VIEWPORT: mandatory base styles, included in full === */
+    /* ===========================================
+       FIXED 16:9 STAGE: MANDATORY BASE STYLES
+       Include this ENTIRE file in every presentation.
+       Slides are authored at 1920×1080 and scaled as a whole.
+       =========================================== */
+
+    /* 1. Lock the browser viewport */
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--stage-bg, #000);
+    }
+
+    /* 2. Full-window deck viewport */
+    .deck-viewport {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        background: var(--stage-bg, #000);
+    }
+
+    /* 3. Fixed 16:9 design canvas.
+       JavaScript sets transform: translate(...) scale(...). */
+    .deck-stage {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        transform-origin: 0 0;
+        background: var(--slide-bg, #fff);
+    }
+
+    /* 4. Slides stack inside the fixed stage.
+       Content must be laid out at 1920×1080, not reflowed per device. */
+    .slide {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        display: block;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        background: var(--slide-bg, #fff);
+    }
+
+    .slide.active,
+    .slide.visible {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+        z-index: 1;
+    }
+
+    /* 5. Keep media inside authored slide bounds */
+    img,
+    video,
+    canvas,
+    svg {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    /* 6. Presentation chrome stays outside the slide design system */
+    .deck-controls {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%);
+        z-index: 1000;
+    }
+
+    /* 7. Print one fixed-size slide per page */
+    @media print {
+        html,
+        body {
+            width: 1920px;
+            height: auto;
+            overflow: visible;
+            background: #fff;
+        }
+
+        .deck-viewport {
+            position: static;
+            overflow: visible;
+            background: #fff;
+        }
+
+        .deck-stage {
+            position: static;
+            width: auto;
+            height: auto;
+            transform: none !important;
+            background: none;
+        }
+
+        .slide {
+            position: relative;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            width: 1920px;
+            height: 1080px;
+            break-after: page;
+            page-break-after: always;
+        }
+
+        .slide:last-child {
+            break-after: auto;
+            page-break-after: auto;
+        }
+
+        .deck-controls {
+            display: none !important;
+        }
+    }
+
+    /* 8. Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.2s !important;
+        }
+    }
+
+    /* === EDITORIAL BASE: typography and the printed-page atmosphere === */
+    *, *::before, *::after { box-sizing: border-box; }
+    body { color: var(--ink); font-family: var(--body-font); }
+    button { font: inherit; }
+    .page {
+      position: absolute;
+      inset: 0;
+      padding: 70px 112px 68px;
+      background-color: var(--paper);
+      background-image: linear-gradient(90deg, rgba(181,35,50,.025) 1px, transparent 1px);
+      background-size: 96px 100%;
+      color: var(--ink);
+    }
+    .page::before {
+      content: '';
+      position: absolute;
+      left: 84px;
+      top: 70px;
+      bottom: 68px;
+      width: 1px;
+      background: rgba(181,35,50,.24);
+    }
+    .page-topline {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+      min-height: 34px;
+      padding-right: 270px;
+      border-bottom: 1px solid var(--rule);
+      padding: 0 0 17px;
+      color: var(--muted);
+      font: 500 18px/1.2 var(--label-font);
+      letter-spacing: .075em;
+      text-transform: uppercase;
+    }
+    .page-topline .accent { color: var(--accent); }
+    .page-footer {
+      position: absolute;
+      left: 112px;
+      right: 112px;
+      bottom: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--rule);
+      padding-top: 14px;
+      color: var(--muted);
+      font: 400 16px/1.2 var(--label-font);
+      letter-spacing: .045em;
+      text-transform: uppercase;
+    }
+    .page-footer b { color: var(--accent); font-weight: 500; }
+    .page-count { color: var(--ink); }
+    .eyebrow {
+      margin: 0 0 19px;
+      color: var(--accent);
+      font: 500 19px/1.35 var(--label-font);
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    .title {
+      margin: 0;
+      font: 500 78px/.99 var(--title-font);
+      letter-spacing: -.025em;
+      text-wrap: balance;
+    }
+    .title em { color: var(--accent); font-weight: 400; }
+    .dek {
+      max-width: 1000px;
+      margin: 22px 0 0;
+      color: var(--body-ink);
+      font: 400 29px/1.4 var(--body-font);
+    }
+    .body-copy {
+      color: var(--body-ink);
+      font: 400 27px/1.4 var(--body-font);
+    }
+    .small-copy {
+      color: var(--muted);
+      font: 400 20px/1.38 var(--body-font);
+    }
+    .mono {
+      font-family: var(--label-font);
+      letter-spacing: .03em;
+    }
+    .red { color: var(--accent); }
+    .green { color: var(--green-ink); }
+    .rule { height: 1px; background: var(--rule); }
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .65s var(--ease-editorial), transform .65s var(--ease-editorial);
+    }
+    .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+    .slide.visible .reveal:nth-child(1) { transition-delay: .08s; }
+    .slide.visible .reveal:nth-child(2) { transition-delay: .17s; }
+    .slide.visible .reveal:nth-child(3) { transition-delay: .26s; }
+    .slide.visible .reveal:nth-child(4) { transition-delay: .35s; }
+    .slide.visible .reveal:nth-child(5) { transition-delay: .44s; }
+
+    /* === CONTENT GRAMMAR: ruled columns, large numerals, and process lines === */
+    .content-start { position: relative; margin-top: 48px; }
+    .section-banner {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 40px;
+      align-items: center;
+      margin-top: 56px;
+    }
+    .section-number {
+      color: var(--accent);
+      font: 400 230px/.72 var(--title-font);
+      letter-spacing: -.07em;
+    }
+    .section-title {
+      max-width: 1030px;
+      margin: 0;
+      font: 500 83px/1.02 var(--title-font);
+      letter-spacing: -.035em;
+    }
+    .section-dek {
+      max-width: 1020px;
+      margin: 21px 0 0;
+      color: var(--body-ink);
+      font: 400 28px/1.4 var(--body-font);
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 62px;
+    }
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 36px;
+    }
+    .column-rule { border-left: 1px solid var(--rule); padding-left: 28px; }
+    .column-title {
+      margin: 0 0 15px;
+      font: 600 35px/1.1 var(--title-font);
+    }
+    .column-copy {
+      margin: 0;
+      color: var(--body-ink);
+      font: 400 24px/1.38 var(--body-font);
+    }
+    .lead-quote {
+      margin: 0;
+      border-left: 5px solid var(--accent);
+      padding: 1px 0 4px 26px;
+      color: var(--ink);
+      font: 500 43px/1.16 var(--title-font);
+    }
+    .index-line {
+      display: grid;
+      grid-template-columns: 74px 1fr auto;
+      align-items: baseline;
+      gap: 19px;
+      border-bottom: 1px solid var(--rule);
+      padding: 16px 0;
+    }
+    .index-line .index-no { color: var(--accent); font: 500 18px var(--label-font); }
+    .index-line .index-name { font: 500 29px/1.15 var(--title-font); }
+    .index-line .index-ref { color: var(--muted); font: 400 17px var(--label-font); }
+    .step-track {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      margin-top: 70px;
+      border-top: 2px solid var(--accent);
+    }
+    .track-step {
+      position: relative;
+      padding: 28px 22px 0 0;
+      border-right: 1px solid var(--rule);
+    }
+    .track-step:last-child { border-right: 0; }
+    .track-step::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 0;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: var(--paper);
+    }
+    .track-no { color: var(--accent); font: 500 17px var(--label-font); }
+    .track-title { display: block; margin-top: 11px; font: 600 31px/1.08 var(--title-font); }
+    .track-note { display: block; max-width: 260px; margin-top: 9px; color: var(--muted); font: 400 19px/1.3 var(--body-font); }
+    .stamp {
+      display: inline-block;
+      border: 1px solid var(--accent);
+      padding: 7px 11px 6px;
+      color: var(--accent);
+      font: 500 16px var(--label-font);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .number-callout {
+      color: var(--accent);
+      font: 400 176px/.8 var(--title-font);
+      letter-spacing: -.06em;
+    }
+    .word-chip {
+      display: inline-block;
+      border: 1px solid var(--rule);
+      margin: 0 9px 10px 0;
+      padding: 7px 12px 6px;
+      color: var(--body-ink);
+      font: 400 19px var(--label-font);
+    }
+    .figure {
+      position: relative;
+      background: var(--paper-shadow);
+      padding: 28px 31px;
+    }
+    .figure-label {
+      margin: 0 0 11px;
+      color: var(--muted);
+      font: 500 16px var(--label-font);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    /* === SLIDE-SPECIFIC COMPOSITIONS: varied pacing across five speakers === */
+    .cover-page { padding-top: 78px; }
+    .cover-layout {
+      display: grid;
+      grid-template-columns: 1.12fr .88fr;
+      gap: 74px;
+      align-items: center;
+      height: 790px;
+    }
+    .cover-title {
+      max-width: 1000px;
+      margin: 0;
+      font: 500 112px/.95 var(--title-font);
+      letter-spacing: -.045em;
+    }
+    .cover-title em { color: var(--accent); font-weight: 400; }
+    .cover-subtitle {
+      max-width: 790px;
+      margin: 30px 0 0;
+      color: var(--body-ink);
+      font: 400 32px/1.36 var(--body-font);
+    }
+    .cover-route {
+      position: relative;
+      border-left: 1px solid var(--rule);
+      margin-left: 56px;
+      padding: 8px 0 8px 34px;
+    }
+    .cover-route::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 18px;
+      bottom: 17px;
+      width: 9px;
+      background: radial-gradient(circle, var(--accent) 4px, transparent 5px) center top / 9px 63px repeat-y;
+    }
+    .cover-route-row {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 12px;
+      align-items: baseline;
+      padding: 17px 0;
+    }
+    .cover-route-row b { color: var(--accent); font: 500 17px var(--label-font); }
+    .cover-route-row span { color: var(--ink); font: 500 25px/1.12 var(--title-font); }
+    .roster {
+      display: grid;
+      grid-template-columns: 1fr;
+      margin-top: 25px;
+    }
+    .roster-row {
+      display: grid;
+      grid-template-columns: 250px 1fr 200px;
+      gap: 28px;
+      align-items: center;
+      border-bottom: 1px solid var(--rule);
+      padding: 17px 0;
+    }
+    .roster-speaker { color: var(--accent); font: 500 17px var(--label-font); text-transform: uppercase; }
+    .roster-topic { font: 500 29px/1.12 var(--title-font); }
+    .roster-articles { color: var(--muted); text-align: right; font: 400 17px var(--label-font); }
+    .balance-figure {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      margin-top: 60px;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .balance-step { min-height: 180px; padding: 23px 23px 21px 0; border-right: 1px solid var(--rule); }
+    .balance-step:not(:first-child) { padding-left: 22px; }
+    .balance-step:last-child { border-right: 0; }
+    .balance-step b { display: block; color: var(--accent); font: 500 17px var(--label-font); }
+    .balance-step strong { display: block; margin-top: 13px; font: 600 31px/1.06 var(--title-font); }
+    .balance-step span { display: block; margin-top: 9px; color: var(--muted); font: 400 19px/1.25 var(--body-font); }
+    .lock-row { display: grid; grid-template-columns: 1fr 1fr; gap: 54px; margin-top: 45px; }
+    .lock { border-top: 3px solid var(--accent); padding-top: 20px; }
+    .lock h3 { margin: 13px 0 9px; font: 600 45px/.95 var(--title-font); }
+    .lock p { max-width: 660px; margin: 0; color: var(--body-ink); font: 400 25px/1.38 var(--body-font); }
+    .lock small { display: block; margin-top: 15px; color: var(--muted); font: 400 16px var(--label-font); }
+    .circuit {
+      display: grid;
+      grid-template-columns: 1fr 90px 1fr 90px 1fr 90px 1fr;
+      align-items: center;
+      margin-top: 65px;
+    }
+    .circuit-node { min-height: 210px; border-top: 2px solid var(--accent); padding-top: 20px; }
+    .circuit-node b { color: var(--accent); font: 500 16px var(--label-font); }
+    .circuit-node strong { display: block; margin-top: 16px; font: 600 33px/1.05 var(--title-font); }
+    .circuit-node span { display: block; margin-top: 11px; color: var(--muted); font: 400 20px/1.28 var(--body-font); }
+    .circuit-arrow { align-self: start; padding-top: 53px; color: var(--accent); text-align: center; font: 400 47px var(--title-font); }
+    .split-quote {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: center;
+      margin-top: 43px;
+    }
+    .green-rule { border-left: 4px solid var(--green-ink); padding-left: 23px; }
+    .red-rule { border-left: 4px solid var(--accent); padding-left: 23px; }
+    .green-rule h3, .red-rule h3 { margin: 0 0 11px; font: 600 34px var(--title-font); }
+    .green-rule p, .red-rule p { margin: 0; color: var(--body-ink); font: 400 23px/1.35 var(--body-font); }
+    .rule-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 48px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+    .rule-era { padding: 28px 34px 27px 0; }
+    .rule-era + .rule-era { border-left: 1px solid var(--rule); padding-left: 34px; }
+    .rule-era h3 { margin: 12px 0; font: 600 38px/1 var(--title-font); }
+    .rule-era p { max-width: 650px; margin: 0; color: var(--body-ink); font: 400 23px/1.34 var(--body-font); }
+    .program-tree { display: flex; flex-direction: column; margin-top: 31px; border-top: 1px solid var(--rule); }
+    .program-level { display: grid; grid-template-columns: 200px 1fr auto; align-items: center; gap: 22px; border-bottom: 1px solid var(--rule); padding: 11px 0; }
+    .program-level:nth-child(2) { padding-left: 38px; }
+    .program-level:nth-child(3) { padding-left: 76px; }
+    .program-level:nth-child(4) { padding-left: 114px; }
+    .program-level b { color: var(--accent); font: 500 16px var(--label-font); }
+    .program-level span { font: 500 27px var(--title-font); }
+    .program-level small { color: var(--muted); font: 400 15px var(--label-font); }
+    .source-list { margin-top: 36px; }
+    .source-item { display: grid; grid-template-columns: 56px 1fr; gap: 16px; margin: 15px 0; color: var(--body-ink); font: 400 21px/1.34 var(--body-font); }
+    .source-item b { color: var(--accent); font: 500 15px var(--label-font); }
+
+    /* === EDITOR CONTROLS: outside the fixed slide stage === */
+    .edit-hotzone { position: fixed; top: 0; left: 0; width: 92px; height: 68px; z-index: 10001; cursor: pointer; }
+    .edit-toggle {
+      position: fixed;
+      top: 12px;
+      left: 13px;
+      z-index: 10002;
+      border: 1px solid rgba(250,249,247,.24);
+      border-radius: 3px;
+      padding: 8px 11px;
+      background: rgba(36,35,33,.88);
+      color: #faf9f7;
+      font: 500 13px var(--label-font);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, background .25s ease;
+      cursor: pointer;
+    }
+    .edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+    .edit-toggle.active { background: var(--accent); }
+    .editing [data-editable="true"] { cursor: text; }
+    .editing [data-editable="true"]:hover { outline: 1px dashed rgba(181,35,50,.55); outline-offset: 3px; }
+    .edit-status {
+      position: fixed;
+      top: 14px;
+      left: 112px;
+      z-index: 10002;
+      padding: 6px 9px;
+      background: var(--accent);
+      color: #fff;
+      font: 500 11px var(--label-font);
+      letter-spacing: .05em;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .edit-status.show { opacity: 1; }
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      top: 12px;
+      right: 16px;
+      bottom: auto;
+      left: auto;
+      border: 1px solid rgba(250,249,247,.18);
+      border-radius: 3px;
+      padding: 7px 10px;
+      background: rgba(36,35,33,.9);
+      color: var(--paper);
+      font: 400 12px var(--label-font);
+      transform: none;
+    }
+    .deck-controls button {
+      width: 29px;
+      height: 27px;
+      border: 0;
+      background: transparent;
+      color: var(--paper);
+      cursor: pointer;
+      font: 500 16px var(--label-font);
+    }
+    .deck-controls button:hover { color: #f0c5c6; }
+    .progress-track { width: 76px; height: 2px; background: rgba(250,249,247,.28); }
+    .progress-fill { width: 0; height: 100%; background: var(--accent); transition: width .25s ease; }
+    .deck-controls .count { min-width: 45px; text-align: center; }
+    .outside-ui-hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="deck-viewport">
+    <main class="deck-stage" id="deckStage" aria-label="Presentación: Ley Orgánica del Presupuesto">
+
+      <!-- === 01 · PORTADA === -->
+      <section class="slide title-slide active visible" aria-label="Portada">
+        <div class="page cover-page">
+          <header class="page-topline reveal">
+            <span>Guatemala <b class="accent">·</b> Decreto 101-97</span>
+            <span class="accent">Exposición oral · cinco voces</span>
+          </header>
+          <div class="cover-layout">
+            <div>
+              <p class="eyebrow reveal" data-editable="true">Ley Orgánica del Presupuesto</p>
+              <h1 class="cover-title reveal" data-editable="true">La ley que da rumbo<br>al dinero <em>público</em></h1>
+              <p class="cover-subtitle reveal" data-editable="true">Una lectura de la estructura presupuestaria en cinco bloques: del plan al control de cada quetzal.</p>
+            </div>
+            <aside class="cover-route" aria-label="Los cinco bloques de la exposición">
+              <div class="cover-route-row reveal"><b>01</b><span>Reglas y planificación</span></div>
+              <div class="cover-route-row reveal"><b>02</b><span>Formulación y ejecución</span></div>
+              <div class="cover-route-row reveal"><b>03</b><span>Entidades y registros</span></div>
+              <div class="cover-route-row reveal"><b>04</b><span>Tesorería y crédito</span></div>
+              <div class="cover-route-row reveal"><b>05</b><span>Responsabilidad y reglamento</span></div>
+            </aside>
+          </div>
+          <footer class="page-footer"><span>Distribución temática <b>·</b> Punto 3.3</span><span class="page-count">01 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 02 · REPARTO ENTRE INTEGRANTES === -->
+      <section class="slide" aria-label="Reparto temático para los cinco integrantes">
+        <div class="page">
+          <header class="page-topline"><span>Mapa de la exposición</span><span class="accent">Punto 3.3</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">Un relevo, no cinco temas aislados</p>
+            <h2 class="title reveal">Cinco voces.<br>Un mismo <em>recorrido.</em></h2>
+            <p class="dek reveal">Cada integrante explica un tramo de la administración financiera pública y entrega la palabra al siguiente.</p>
+            <div class="roster">
+              <div class="roster-row reveal"><span class="roster-speaker">Integrante 1</span><span class="roster-topic">Reglas generales y planificación</span><span class="roster-articles">Arts. 1–18</span></div>
+              <div class="roster-row reveal"><span class="roster-speaker">Integrante 2 · Sam</span><span class="roster-topic">Formulación, ejecución y cierre</span><span class="roster-articles">Arts. 19–38</span></div>
+              <div class="roster-row reveal"><span class="roster-speaker">Integrante 3</span><span class="roster-topic">Entidades, municipalidades y SICOIN</span><span class="roster-articles">Arts. 39–53 Bis</span></div>
+              <div class="roster-row reveal"><span class="roster-speaker">Integrante 4</span><span class="roster-topic">Tesorería y crédito público</span><span class="roster-articles">Arts. 54–74 Bis</span></div>
+              <div class="roster-row reveal"><span class="roster-speaker">Integrante 5</span><span class="roster-topic">Remuneraciones, sanciones y reglamento</span><span class="roster-articles">Arts. 75–82 + guía</span></div>
+            </div>
+          </div>
+          <footer class="page-footer"><span>El orden sigue la distribución temática del equipo</span><span class="page-count">02 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 03 · IDEA CENTRAL: EL CICLO DEL PRESUPUESTO === -->
+      <section class="slide" aria-label="El presupuesto como ciclo integrado">
+        <div class="page">
+          <header class="page-topline"><span>La idea que conecta los bloques</span><span class="accent">Del plan a la rendición</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">No es solo una lista de ingresos y gastos</p>
+            <h2 class="title reveal">Es una cadena de decisiones<br>con <em>responsables.</em></h2>
+            <div class="balance-figure">
+              <div class="balance-step reveal"><b>01 · PLANEAR</b><strong>Prioridades</strong><span>Qué necesidad pública se atenderá.</span></div>
+              <div class="balance-step reveal"><b>02 · AUTORIZAR</b><strong>Presupuesto</strong><span>Cuánto se asigna y para qué.</span></div>
+              <div class="balance-step reveal"><b>03 · EJECUTAR</b><strong>Bienes y obras</strong><span>Qué se contrata y entrega.</span></div>
+              <div class="balance-step reveal"><b>04 · REGISTRAR</b><strong>Contabilidad</strong><span>Qué se comprometió, devengó y pagó.</span></div>
+              <div class="balance-step reveal"><b>05 · EVALUAR</b><strong>Resultados</strong><span>Qué cambió y cómo se informa.</span></div>
+            </div>
+            <p class="lead-quote reveal" style="margin-top:45px">La ley vincula <em>el destino del dinero</em> con la responsabilidad de quien lo administra.</p>
+          </div>
+          <footer class="page-footer"><span>Decreto 101-97 <b>·</b> presupuesto, tesorería, contabilidad y crédito</span><span class="page-count">03 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 04 · BLOQUE 1: MARCO Y RESPONSABILIDADES === -->
+      <section class="slide" aria-label="Bloque 1: disposiciones generales y sistema presupuestario">
+        <div class="page">
+          <header class="page-topline"><span>Turno de voz · Integrante 1</span><span class="accent">Título I + Título II, Capítulo I</span></header>
+          <div class="section-banner">
+            <div class="section-number reveal">01</div>
+            <div>
+              <p class="eyebrow reveal">Artículos 1–18</p>
+              <h2 class="section-title reveal">Reglas compartidas.<br>Responsabilidades distribuidas.</h2>
+              <p class="section-dek reveal">La ley fija el marco común para organizar presupuesto, contabilidad, tesorería y crédito público.</p>
+            </div>
+          </div>
+          <div class="two-col" style="margin-top:49px">
+            <div class="column-rule reveal"><h3 class="column-title">Rectoría</h3><p class="column-copy">El Ministerio de Finanzas Públicas establece normas y coordina el sistema.</p></div>
+            <div class="column-rule reveal"><h3 class="column-title">Operación y responsabilidad</h3><p class="column-copy">Cada institución administra sus tareas financieras mediante sus unidades, bajo responsabilidad de sus autoridades.</p></div>
+          </div>
+          <footer class="page-footer"><span>Idea para exponer <b>·</b> reglas comunes no eliminan la responsabilidad institucional</span><span class="page-count">04 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 05 · BLOQUE 1: PLANIFICACIÓN, RESULTADOS Y CLASIFICADORES === -->
+      <section class="slide" aria-label="Vinculación del plan, presupuesto y resultados">
+        <div class="page">
+          <header class="page-topline"><span>Bloque 1 · planificación y transparencia</span><span class="accent">Arts. 7 Bis, 8, 12 y 17 Quáter</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">El presupuesto traduce prioridades en recursos</p>
+            <h2 class="title reveal">Planificar también es decidir<br><em>qué podremos medir.</em></h2>
+            <div class="step-track">
+              <div class="track-step reveal"><span class="track-no">01</span><strong class="track-title">Plan</strong><span class="track-note">Prioridad pública y población.</span></div>
+              <div class="track-step reveal"><span class="track-no">02</span><strong class="track-title">Programa</strong><span class="track-note">Acciones, bienes o servicios.</span></div>
+              <div class="track-step reveal"><span class="track-no">03</span><strong class="track-title">Asignación</strong><span class="track-note">Recursos y fuente financiera.</span></div>
+              <div class="track-step reveal"><span class="track-no">04</span><strong class="track-title">Indicador</strong><span class="track-note">Meta y avance verificable.</span></div>
+              <div class="track-step reveal"><span class="track-no">05</span><strong class="track-title">Informe</strong><span class="track-note">Ejecución y resultado público.</span></div>
+            </div>
+            <div style="margin-top:38px">
+              <p class="body-copy reveal" style="margin:0 0 13px">Los clasificadores temáticos ayudan a seguir recursos dirigidos, entre otros, a:</p>
+              <span class="word-chip reveal">Educación</span><span class="word-chip reveal">Agua y saneamiento</span><span class="word-chip reveal">Desnutrición</span><span class="word-chip reveal">Niñez y juventud</span><span class="word-chip reveal">Pueblos indígenas</span>
+            </div>
+            <p class="small-copy reveal" style="margin-top:8px">Una etiqueta presupuestaria permite rastrear asignaciones; por sí sola, no demuestra que la meta se haya alcanzado.</p>
+          </div>
+          <footer class="page-footer"><span>Integrante 1 <b>·</b> vincular gasto, metas, población y resultados</span><span class="page-count">05 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 06 · BLOQUE 2: FORMULACIÓN Y EJECUCIÓN === -->
+      <section class="slide" aria-label="Bloque 2: motor operativo del presupuesto">
+        <div class="page">
+          <header class="page-topline"><span>Turno de voz · Integrante 2 · Sam</span><span class="accent">Título II, Capítulo II</span></header>
+          <div class="section-banner">
+            <div class="section-number reveal">02</div>
+            <div>
+              <p class="eyebrow reveal">Artículos 19–38</p>
+              <h2 class="section-title reveal">Del anteproyecto<br>al cierre del ejercicio.</h2>
+              <p class="section-dek reveal">Este bloque explica el motor operativo: cómo se formula, autoriza, ejecuta, revisa y liquida el presupuesto anual.</p>
+            </div>
+          </div>
+          <div class="circuit" style="grid-template-columns:1fr 75px 1fr 75px 1fr 75px 1fr">
+            <div class="circuit-node reveal"><b>FORMULAR</b><strong>Planes + costos</strong><span>Los anteproyectos se respaldan en planes operativos.</span></div><div class="circuit-arrow reveal">→</div>
+            <div class="circuit-node reveal"><b>APROBAR</b><strong>Congreso</strong><span>Se autoriza el techo y el destino de los créditos.</span></div><div class="circuit-arrow reveal">→</div>
+            <div class="circuit-node reveal"><b>EJECUTAR</b><strong>Instituciones</strong><span>Los recursos se comprometen y se registran.</span></div><div class="circuit-arrow reveal">→</div>
+            <div class="circuit-node reveal"><b>LIQUIDAR</b><strong>Al cierre</strong><span>Se determina qué quedó ejecutado y pendiente.</span></div>
+          </div>
+          <div class="figure reveal" style="display:grid;grid-template-columns:150px 1fr;gap:27px;align-items:center;margin-top:17px">
+            <span class="number-callout">24</span><p class="body-copy" style="margin:0"><strong>Válvula de continuidad:</strong> si no se aprueba el nuevo presupuesto a tiempo, rige el del ejercicio anterior, con posibilidad de ajustes legislativos. Evita que el Estado quede sin marco presupuestario.</p>
+          </div>
+          <footer class="page-footer"><span>Idea para exponer <b>·</b> cada fase deja condiciones para la siguiente</span><span class="page-count">06 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 07 · BLOQUE 2: LOS DOS CANDADOS PREVIOS === -->
+      <section class="slide" aria-label="CDP y CDF como controles previos a la contratación">
+        <div class="page">
+          <header class="page-topline"><span>Bloque 2 · antes de contratar</span><span class="accent">Arts. 26 y 26 Bis</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">Una asignación aprobada no es un cheque en blanco</p>
+            <h2 class="title reveal">Dos preguntas antes<br>de asumir el <em>compromiso.</em></h2>
+            <div class="lock-row">
+              <article class="lock reveal">
+                <span class="stamp">Candado 01</span>
+                <h3>¿Hay crédito presupuestario?</h3>
+                <p>La <strong>CDP</strong> acredita que existe asignación en la partida para cubrir el compromiso previsto.</p>
+                <small>CDP · DISPONIBILIDAD PRESUPUESTARIA</small>
+              </article>
+              <article class="lock reveal">
+                <span class="stamp">Candado 02</span>
+                <h3>¿Hay disponibilidad financiera?</h3>
+                <p>La <strong>CDF</strong> acredita que la programación financiera puede respaldar los pagos.</p>
+                <small>CDF · DISPONIBILIDAD FINANCIERA</small>
+              </article>
+            </div>
+            <p class="lead-quote reveal" style="margin-top:41px">Crédito asignado y liquidez programada: <em>no son lo mismo.</em></p>
+            <p class="small-copy reveal" style="margin-top:15px">El artículo 26 Bis exige las constancias antes de contratar en los grupos de gasto que establece la norma, incluidos bienes, suministros y obras.</p>
+          </div>
+          <footer class="page-footer"><span>Integrante 2 <b>·</b> el control preventivo evita compromisos sin respaldo</span><span class="page-count">07 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 08 · BLOQUE 2: EJECUCIÓN, INVERSIÓN Y CIERRE === -->
+      <section class="slide" aria-label="Programación, evaluación y cierre presupuestario">
+        <div class="page">
+          <header class="page-topline"><span>Bloque 2 · de la partida al resultado</span><span class="accent">Arts. 28, 30, 32, 34 y 36–38</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">El crédito se ejecuta con ritmo y evidencia</p>
+            <h2 class="title reveal">Seguimiento físico y financiero,<br>hasta el <em>último día.</em></h2>
+            <div class="circuit">
+              <div class="circuit-node reveal"><b>01 · PROGRAMAR</b><strong>Cuotas</strong><span>La caja y los ingresos determinan el ritmo de compromiso, devengado y pago.</span></div><div class="circuit-arrow reveal">→</div>
+              <div class="circuit-node reveal"><b>02 · RESPALDAR</b><strong>SNIP</strong><span>La inversión se registra y mantiene actualizado su avance físico y financiero.</span></div><div class="circuit-arrow reveal">→</div>
+              <div class="circuit-node reveal"><b>03 · EVALUAR</b><strong>Meta + gasto</strong><span>Se comparan los resultados físicos con los recursos ejecutados.</span></div>
+            </div>
+            <div class="two-col" style="margin-top:24px">
+              <div class="column-rule reveal"><h3 class="column-title">Si cambian las condiciones</h3><p class="column-copy">La ley prevé ajustes y transferencias con autorizaciones y deberes de información.</p></div>
+              <div class="column-rule reveal"><h3 class="column-title">Al 31 de diciembre</h3><p class="column-copy">Se cierra el ejercicio, se distinguen compromisos de gastos devengados y se reintegran saldos sin obligación respaldada.</p></div>
+            </div>
+          </div>
+          <footer class="page-footer"><span>Integrante 2 <b>·</b> gastar no equivale a producir un resultado</span><span class="page-count">08 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 09 · BLOQUE 3: ENTIDADES Y TRANSFERENCIAS === -->
+      <section class="slide" aria-label="Bloque 3: entidades descentralizadas, autónomas y municipalidades">
+        <div class="page">
+          <header class="page-topline"><span>Turno de voz · Integrante 3</span><span class="accent">Título II, Capítulos III–IV</span></header>
+          <div class="section-banner">
+            <div class="section-number reveal">03</div>
+            <div>
+              <p class="eyebrow reveal">Artículos 39–53 Bis</p>
+              <h2 class="section-title reveal">Autonomía institucional;<br>trazabilidad pública.</h2>
+              <p class="section-dek reveal">El marco también alcanza a entidades descentralizadas, autónomas y municipalidades cuando administran presupuesto y fondos públicos.</p>
+            </div>
+          </div>
+          <div class="split-quote">
+            <div class="green-rule reveal"><h3>Las entidades deciden dentro de sus competencias</h3><p>Las modificaciones presupuestarias conservan límites, autorizaciones y obligaciones de reporte.</p></div>
+            <div class="red-rule reveal"><h3>Los aportes deben seguirse</h3><p>En los desembolsos a CODEDES y municipalidades, el avance físico y los registros de obra respaldan la entrega de recursos.</p></div>
+          </div>
+          <p class="body-copy reveal" style="margin-top:37px">La trazabilidad enlaza <strong>SNIP</strong> (proyecto y avance), <strong>Guatecompras</strong> (contratación) y <strong>SICOIN</strong> (registro financiero).</p>
+          <footer class="page-footer"><span>Idea para exponer <b>·</b> autonomía no significa ausencia de reglas ni de fiscalización</span><span class="page-count">09 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 10 · BLOQUE 3: SICOIN Y LOS MOMENTOS DEL GASTO === -->
+      <section class="slide" aria-label="SICOIN integra los registros del gasto público">
+        <div class="page">
+          <header class="page-topline"><span>Bloque 3 · sistema de contabilidad integrada</span><span class="accent">Arts. 48–53 Bis</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">Un registro común permite reconstruir la operación</p>
+            <h2 class="title reveal">SICOIN conecta presupuesto,<br>contabilidad y <em>caja.</em></h2>
+            <div class="circuit" style="grid-template-columns:1fr 90px 1fr 90px 1fr">
+              <div class="circuit-node reveal"><b>1 · COMPROMISO</b><strong>Se reserva crédito</strong><span>La entidad asume una obligación con respaldo presupuestario.</span></div><div class="circuit-arrow reveal">→</div>
+              <div class="circuit-node reveal"><b>2 · DEVENGADO</b><strong>Se reconoce la obligación</strong><span>Se verifica lo recibido o el servicio prestado, conforme a las reglas aplicables.</span></div><div class="circuit-arrow reveal">→</div>
+              <div class="circuit-node reveal"><b>3 · PAGO</b><strong>Se cancela</strong><span>La Tesorería ordena el pago y queda rastro de la operación.</span></div>
+            </div>
+            <div class="figure reveal" style="margin-top:25px">
+              <p class="figure-label">Qué permite la integración</p>
+              <p class="body-copy" style="margin:0">Ver el mismo hecho desde su impacto presupuestario, contable y de tesorería; consolidar informes y facilitar la fiscalización.</p>
+            </div>
+            <p class="small-copy reveal" style="margin-top:15px">La documentación que respalda cada etapa permite comprobar qué se contrató, qué se recibió y qué se pagó.</p>
+          </div>
+          <footer class="page-footer"><span>Integrante 3 <b>·</b> un registro integrado hace visible el recorrido</span><span class="page-count">10 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 11 · BLOQUE 4: TESORERÍA Y CUENTA ÚNICA === -->
+      <section class="slide" aria-label="Bloque 4: sistema de tesorería y Cuenta Única del Tesoro">
+        <div class="page">
+          <header class="page-topline"><span>Turno de voz · Integrante 4</span><span class="accent">Título IV · arts. 54–59</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">La tesorería administra el flujo real de fondos</p>
+            <h2 class="title reveal">Presupuesto autorizado<br>no significa <em>efectivo inmediato.</em></h2>
+            <div class="circuit" style="grid-template-columns:1fr 90px 1fr 90px 1fr">
+              <div class="circuit-node reveal"><b>INGRESOS</b><strong>Fondo Común</strong><span>Los ingresos públicos se centralizan conforme a la ley.</span></div><div class="circuit-arrow reveal">→</div>
+              <div class="circuit-node reveal"><b>ADMINISTRACIÓN</b><strong>CUT</strong><span>La Cuenta Única del Tesoro concentra la disponibilidad de caja.</span></div><div class="circuit-arrow reveal">→</div>
+              <div class="circuit-node reveal"><b>PAGOS</b><strong>Beneficiario</strong><span>La Tesorería organiza y realiza pagos con respaldo y programación.</span></div>
+            </div>
+            <div class="two-col" style="margin-top:35px">
+              <div class="column-rule reveal"><h3 class="column-title">Programa Anual de Caja</h3><p class="column-copy">Ordena los flujos y las disponibilidades por período para atender obligaciones.</p></div>
+              <div class="column-rule reveal"><h3 class="column-title">Letras de Tesorería</h3><p class="column-copy">Instrumento de corto plazo para deficiencias estacionales, sujeto a los límites legales.</p></div>
+            </div>
+          </div>
+          <footer class="page-footer"><span>Idea para exponer <b>·</b> tener crédito aprobado y tener caja disponible son momentos distintos</span><span class="page-count">11 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 12 · BLOQUE 4: CRÉDITO PÚBLICO Y REGLA DE ORO === -->
+      <section class="slide" aria-label="La regla de oro del crédito público del artículo 61">
+        <div class="page">
+          <header class="page-topline"><span>Bloque 4 · sistema de crédito público</span><span class="accent">Art. 61</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">La deuda compromete recursos de ejercicios futuros</p>
+            <h2 class="title reveal">Regla de oro:<br>crédito para fines <em>autorizados.</em></h2>
+            <p class="dek reveal">El artículo 61 enumera destinos permitidos para el crédito público y prohíbe financiar con deuda gastos corrientes u operativos.</p>
+            <div class="split-quote">
+              <div class="green-rule reveal">
+                <h3>La ley permite destinarlo a</h3>
+                <p>Inversión productiva, beneficio social e infraestructura; necesidad nacional aprobada conforme a la ley; reorganización del Estado; y pasivos, incluidos sus intereses.</p>
+              </div>
+              <div class="red-rule reveal">
+                <h3>La ley prohíbe</h3>
+                <p>Realizar operaciones de crédito público para financiar gastos corrientes u operativos.</p>
+              </div>
+            </div>
+            <p class="lead-quote reveal" style="margin-top:45px">La pregunta de control es: <em>¿el destino del préstamo coincide con el fin legalmente aprobado?</em></p>
+          </div>
+          <footer class="page-footer"><span>Integrante 4 <b>·</b> deuda, destino, autorización y capacidad de pago</span><span class="page-count">12 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 13 · BLOQUE 5: REMUNERACIONES Y PAGOS DEBIDOS === -->
+      <section class="slide" aria-label="Bloque 5: remuneraciones, servicios y dietas">
+        <div class="page">
+          <header class="page-topline"><span>Turno de voz · Integrante 5</span><span class="accent">Título VI · arts. 75–78</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">La ley también regula cómo se usa el gasto de personal</p>
+            <h2 class="title reveal">Pagar exige norma,<br>respaldo y <em>servicio prestado.</em></h2>
+            <div class="three-col" style="margin-top:55px">
+              <div class="column-rule reveal"><span class="stamp">Art. 75</span><h3 class="column-title" style="margin-top:18px">Puestos y sueldos</h3><p class="column-copy">Las remuneraciones se sujetan a la normativa aplicable y se detallan en un presupuesto analítico de puestos.</p></div>
+              <div class="column-rule reveal"><span class="stamp">Art. 76</span><h3 class="column-title" style="margin-top:18px">Trabajo devengado</h3><p class="column-copy">No corresponde pagar una retribución personal o un servicio que no se haya devengado o prestado.</p></div>
+              <div class="column-rule reveal"><span class="stamp">Arts. 77–78</span><h3 class="column-title" style="margin-top:18px">Asignaciones reguladas</h3><p class="column-copy">Gastos de representación y dietas se otorgan bajo categorías, autorizaciones y condiciones previstas por la ley.</p></div>
+            </div>
+            <p class="lead-quote reveal" style="margin-top:55px">La asignación presupuestaria <em>no convierte</em> un pago indebido en legítimo.</p>
+          </div>
+          <footer class="page-footer"><span>Integrante 5 <b>·</b> puesto, base legal y prestación verificable</span><span class="page-count">13 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 14 · BLOQUE 5: GARANTÍAS, NORMAS Y SANCIONES === -->
+      <section class="slide" aria-label="Garantías de responsabilidad y sanciones por incumplimiento">
+        <div class="page">
+          <header class="page-topline"><span>Bloque 5 · disposiciones finales</span><span class="accent">Arts. 79–82 + 80 Bis</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">La norma necesita responsables y consecuencias</p>
+            <h2 class="title reveal">Del deber de cuidado<br>a la <em>rendición de cuentas.</em></h2>
+            <div class="step-track" style="grid-template-columns:repeat(4,1fr);margin-top:62px">
+              <div class="track-step reveal"><span class="track-no">79</span><strong class="track-title">Garantizar</strong><span class="track-note">Quien recauda, administra o custodia bienes o fondos debe caucionar su responsabilidad.</span></div>
+              <div class="track-step reveal"><span class="track-no">80</span><strong class="track-title">Normar</strong><span class="track-note">Los órganos rectores desarrollan reglas y manuales para aplicar la ley.</span></div>
+              <div class="track-step reveal"><span class="track-no">80 BIS</span><strong class="track-title">Sancionar</strong><span class="track-note">El incumplimiento puede generar sanciones pecuniarias y otras responsabilidades.</span></div>
+              <div class="track-step reveal"><span class="track-no">81–82</span><strong class="track-title">Actualizar</strong><span class="track-note">Derogatoria del régimen anterior y vigencia de la ley con sus reformas.</span></div>
+            </div>
+            <div class="figure reveal" style="margin-top:35px">
+              <p class="body-copy" style="margin:0"><strong>Nota para la exposición:</strong> al citar el artículo 80 Bis, consultar el texto vigente y sus notas; el documento de trabajo advierte que algunas frases fueron declaradas inconstitucionales.</p>
+            </div>
+          </div>
+          <footer class="page-footer"><span>Integrante 5 <b>·</b> la rendición de cuentas cierra el circuito</span><span class="page-count">14 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 15 · TEMA GUÍA: COMISIÓN TÉCNICA DE FINANZAS PÚBLICAS === -->
+      <section class="slide" aria-label="Comisión Técnica de Finanzas Públicas: integración y objetivos">
+        <div class="page">
+          <header class="page-topline"><span>Integrante 5 · tema complementario de la guía</span><span class="accent">AG 540-2013 · arts. 7–9</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">Asesoría fiscal con mirada interinstitucional</p>
+            <h2 class="title reveal">La Comisión conecta<br>los <em>sistemas públicos.</em></h2>
+            <div class="two-col" style="margin-top:47px">
+              <div class="figure reveal">
+                <p class="figure-label">En la mesa participan</p>
+                <p class="body-copy" style="margin:0">MINFIN y sus direcciones de presupuesto, contabilidad, tesorería y crédito público; SEGEPLAN; y SAT. La integración reúne a quienes planifican y administran los principales flujos fiscales.</p>
+              </div>
+              <div class="column-rule reveal">
+                <p class="figure-label">Su orientación</p>
+                <h3 class="column-title">Coherencia fiscal</h3>
+                <p class="column-copy">Proponer medidas alineadas con los planes y la política macroeconómica; armonizar la programación presupuestaria y financiera; y mejorar la evaluación del uso de recursos.</p>
+              </div>
+            </div>
+            <p class="lead-quote reveal" style="margin-top:40px">Asesora y coordina; <em>no reemplaza</em> a las autoridades que deciden.</p>
+          </div>
+          <footer class="page-footer"><span>Integrante 5 <b>·</b> reglamento de la Ley Orgánica del Presupuesto</span><span class="page-count">15 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 16 · TEMA GUÍA: ESTRUCTURA PROGRAMÁTICA === -->
+      <section class="slide" aria-label="Estructura programática del presupuesto">
+        <div class="page">
+          <header class="page-topline"><span>Integrante 5 · tema complementario de la guía</span><span class="accent">Art. 12 · AG 540-2013, art. 15</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">El gasto se ordena para mostrar qué se hace</p>
+            <h2 class="title reveal">De una política pública<br>a una <em>actividad concreta.</em></h2>
+            <div class="two-col" style="grid-template-columns:1.05fr .95fr;align-items:center;margin-top:32px">
+              <div class="program-tree">
+                <div class="program-level reveal"><b>01 · NIVEL</b><span>Programa</span><small>resultado amplio</small></div>
+                <div class="program-level reveal"><b>02 · NIVEL</b><span>Subprograma</span><small>componente</small></div>
+                <div class="program-level reveal"><b>03 · NIVEL</b><span>Proyecto</span><small>inversión / intervención</small></div>
+                <div class="program-level reveal"><b>04 · NIVEL</b><span>Actividad u obra</span><small>ejecución</small></div>
+              </div>
+              <div class="column-rule reveal">
+                <p class="figure-label">La estructura también identifica</p>
+                <p class="body-copy" style="margin:0">Institución, objeto del gasto, función, tipo de gasto, fuente de financiamiento y ubicación geográfica.</p>
+                <p class="small-copy" style="margin:19px 0 0">Así se puede preguntar: qué se financia, para qué, dónde y con qué recursos.</p>
+              </div>
+            </div>
+            <p class="lead-quote reveal" style="margin-top:31px">Si el programa no refleja la producción real, el presupuesto se vuelve <em>una lista sin resultados.</em></p>
+          </div>
+          <footer class="page-footer"><span>Integrante 5 <b>·</b> la clasificación hace el gasto legible y evaluable</span><span class="page-count">16 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 17 · TEMA GUÍA: REGLAMENTO ANTIGUO Y VIGENTE === -->
+      <section class="slide" aria-label="Transición del Acuerdo Gubernativo 240-98 al 540-2013">
+        <div class="page">
+          <header class="page-topline"><span>Integrante 5 · tema complementario de la guía</span><span class="accent">Marco reglamentario</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">La ley se aplica con normas de desarrollo</p>
+            <h2 class="title reveal">Dos reglamentos.<br>Uno es el <em>vigente.</em></h2>
+            <div class="rule-compare">
+              <article class="rule-era reveal">
+                <span class="stamp">Antecedente histórico</span>
+                <h3>AG 240-98</h3>
+                <p>Primer reglamento del Decreto 101-97. Desarrolló el marco presupuestario inicial; quedó derogado por el reglamento posterior.</p>
+              </article>
+              <article class="rule-era reveal">
+                <span class="stamp">Reglamento vigente</span>
+                <h3>AG 540-2013</h3>
+                <p>Desarrolla el marco reformado y sus herramientas actuales, entre ellas la gestión por resultados, los controles financieros y la transparencia.</p>
+              </article>
+            </div>
+            <p class="lead-quote reveal" style="margin-top:38px">Para explicar una obligación actual, verifica siempre <em>la versión vigente</em> de la ley y su reglamento.</p>
+          </div>
+          <footer class="page-footer"><span>Integrante 5 <b>·</b> no confundir antecedente normativo con regla actual</span><span class="page-count">17 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 18 · CIERRE: CINCO TRAMOS, UN SISTEMA === -->
+      <section class="slide" aria-label="Conclusión de la exposición">
+        <div class="page">
+          <header class="page-topline"><span>Cierre · relevo final</span><span class="accent">Del plan a la rendición</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">Lo esencial para llevarse</p>
+            <h2 class="title reveal">Cinco bloques. Un sistema<br>para cuidar el <em>dinero público.</em></h2>
+            <div class="step-track">
+              <div class="track-step reveal"><span class="track-no">01</span><strong class="track-title">Orientar</strong><span class="track-note">Plan y metas públicas.</span></div>
+              <div class="track-step reveal"><span class="track-no">02</span><strong class="track-title">Autorizar</strong><span class="track-note">Créditos y límites.</span></div>
+              <div class="track-step reveal"><span class="track-no">03</span><strong class="track-title">Registrar</strong><span class="track-note">Entidades y SICOIN.</span></div>
+              <div class="track-step reveal"><span class="track-no">04</span><strong class="track-title">Administrar</strong><span class="track-note">Caja y deuda.</span></div>
+              <div class="track-step reveal"><span class="track-no">05</span><strong class="track-title">Responder</strong><span class="track-note">Control y sanciones.</span></div>
+            </div>
+            <p class="lead-quote reveal" style="margin-top:58px">La pregunta que une toda la ley:<br><em>¿el recurso autorizado se convirtió en un servicio, una obra o un resultado verificable?</em></p>
+          </div>
+          <footer class="page-footer"><span>Decreto 101-97 <b>·</b> Guatemala</span><span class="page-count">18 / 19</span></footer>
+        </div>
+      </section>
+
+      <!-- === 19 · FUENTES Y BASE DOCUMENTAL === -->
+      <section class="slide" aria-label="Fuentes normativas y base documental">
+        <div class="page">
+          <header class="page-topline"><span>Fuentes para consulta</span><span class="accent">Normativa y material de trabajo</span></header>
+          <div class="content-start">
+            <p class="eyebrow reveal">Para ampliar o verificar lo expuesto</p>
+            <h2 class="title reveal">Texto legal, reglamento<br>y <em>distribución temática.</em></h2>
+            <div class="source-list">
+              <p class="source-item reveal"><b>01</b><span>Congreso de la República de Guatemala. <em>Decreto 101-97, Ley Orgánica del Presupuesto</em>, con sus reformas. Texto consultable en el Banco de Guatemala: <span class="mono">banguat.gob.gt/sites/default/files/banguat/leyes/2021/ley_organica_del_presupuesto.pdf</span></span></p>
+              <p class="source-item reveal"><b>02</b><span>Organismo Ejecutivo de Guatemala. <em>Acuerdo Gubernativo 540-2013, Reglamento de la Ley Orgánica del Presupuesto.</em> Consultar la publicación y sus reformas en fuentes oficiales.</span></p>
+              <p class="source-item reveal"><b>03</b><span>Base de esta exposición: punto 3.3 y análisis por bloques del <em>Documento Final Consolidado del Decreto 101-97</em> aportado en los archivos del proyecto.</span></p>
+            </div>
+            <p class="small-copy reveal" style="margin-top:34px">La presentación resume los ejes de cada integrante; para citas textuales, sanciones o interpretación jurídica, revisar la versión oficial y vigente de cada norma.</p>
+          </div>
+          <footer class="page-footer"><span>Fin de la exposición</span><span class="page-count">19 / 19</span></footer>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- === CHROME EXTERIOR: navegación y modo de edición === -->
+  <div class="edit-hotzone" aria-hidden="true"></div>
+  <button class="edit-toggle" id="editToggle" type="button" aria-label="Activar o desactivar edición de texto">✎ editar</button>
+  <div class="edit-status" id="editStatus" aria-live="polite">EDICIÓN · clic en un texto · Ctrl+S guarda</div>
+  <nav class="deck-controls" aria-label="Navegación de diapositivas">
+    <button id="prevButton" type="button" aria-label="Diapositiva anterior">←</button>
+    <span class="count" id="slideCounter">01 / 19</span>
+    <span class="progress-track" aria-hidden="true"><span class="progress-fill" id="progressFill"></span></span>
+    <button id="nextButton" type="button" aria-label="Diapositiva siguiente">→</button>
+  </nav>
+
+  <script>
+    /* === PRESENTATION CONTROLLER: fixed-stage scaling and slide navigation === */
+    class SlidePresentation {
+      constructor() {
+        this.stage = document.getElementById('deckStage');
+        this.slides = [...document.querySelectorAll('.slide')];
+        this.currentSlide = 0;
+        this.lastWheelAt = 0;
+        this.scaleStage();
+        this.bindKeyboard();
+        this.bindTouchAndWheel();
+        this.bindButtons();
+        this.showSlide(0);
+        this.slides[0].classList.remove('visible');
+        requestAnimationFrame(() => requestAnimationFrame(() => this.slides[0].classList.add('visible')));
+      }
+
+      scaleStage() {
+        const fit = () => {
+          const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+          const x = (window.innerWidth - 1920 * factor) / 2;
+          const y = (window.innerHeight - 1080 * factor) / 2;
+          this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+        };
+        fit();
+        window.addEventListener('resize', fit);
+      }
+
+      showSlide(index) {
+        this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+        this.slides.forEach((slide, i) => {
+          slide.classList.toggle('active', i === this.currentSlide);
+          slide.classList.toggle('visible', i === this.currentSlide);
+        });
+        const humanIndex = String(this.currentSlide + 1).padStart(2, '0');
+        const total = String(this.slides.length).padStart(2, '0');
+        document.getElementById('slideCounter').textContent = `${humanIndex} / ${total}`;
+        document.getElementById('progressFill').style.width = `${((this.currentSlide + 1) / this.slides.length) * 100}%`;
+        document.title = `${humanIndex}/${total} · La Ley que da rumbo al presupuesto`;
+      }
+
+      next() { this.showSlide(this.currentSlide + 1); }
+      previous() { this.showSlide(this.currentSlide - 1); }
+
+      bindKeyboard() {
+        document.addEventListener('keydown', event => {
+          const typing = event.target.isContentEditable || ['INPUT', 'TEXTAREA'].includes(event.target.tagName);
+          if (typing) return;
+          if (event.key === 'ArrowRight' || event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ') {
+            event.preventDefault(); this.next();
+          } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp' || event.key === 'PageUp') {
+            event.preventDefault(); this.previous();
+          } else if (event.key === 'Home') {
+            event.preventDefault(); this.showSlide(0);
+          } else if (event.key === 'End') {
+            event.preventDefault(); this.showSlide(this.slides.length - 1);
+          }
+        });
+      }
+
+      bindTouchAndWheel() {
+        let startX = 0;
+        let startY = 0;
+        this.stage.addEventListener('touchstart', event => {
+          startX = event.changedTouches[0].clientX;
+          startY = event.changedTouches[0].clientY;
+        }, { passive: true });
+        this.stage.addEventListener('touchend', event => {
+          const dx = event.changedTouches[0].clientX - startX;
+          const dy = event.changedTouches[0].clientY - startY;
+          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) dx < 0 ? this.next() : this.previous();
+        }, { passive: true });
+        this.stage.addEventListener('wheel', event => {
+          const now = Date.now();
+          if (now - this.lastWheelAt < 650 || Math.abs(event.deltaY) < 25) return;
+          this.lastWheelAt = now;
+          event.deltaY > 0 ? this.next() : this.previous();
+        }, { passive: true });
+      }
+
+      bindButtons() {
+        document.getElementById('prevButton').addEventListener('click', () => this.previous());
+        document.getElementById('nextButton').addEventListener('click', () => this.next());
+      }
+    }
+
+    /* === INLINE TEXT EDITOR: local recovery plus downloadable HTML save === */
+    class InlineDeckEditor {
+      constructor() {
+        this.isActive = false;
+        this.toggle = document.getElementById('editToggle');
+        this.hotzone = document.querySelector('.edit-hotzone');
+        this.status = document.getElementById('editStatus');
+        this.stage = document.getElementById('deckStage');
+        this.currentTarget = null;
+        this.hideTimer = null;
+        this.storageKey = 'presupuesto-101-97-edit-v1';
+        this.prepareEditableTargets();
+        this.restoreText();
+        this.bindToggle();
+        this.bindHotzone();
+        this.bindEditing();
+      }
+
+      restoreText() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(this.storageKey) || 'null');
+          if (!saved) return;
+          document.querySelectorAll('[data-editable="true"]').forEach((element, index) => {
+            if (typeof saved[index] === 'string') element.innerHTML = saved[index];
+          });
+        } catch (error) {
+          console.warn('No se pudo restaurar el texto guardado.', error);
+        }
+      }
+
+      persistText() {
+        const content = [...document.querySelectorAll('[data-editable="true"]')].map(element => element.innerHTML);
+        try { localStorage.setItem(this.storageKey, JSON.stringify(content)); }
+        catch (error) { console.warn('No se pudo guardar en el almacenamiento local.', error); }
+      }
+
+      setMode(active) {
+        this.isActive = active;
+        if (!active) this.finishCurrentTarget();
+        document.body.classList.toggle('editing', active);
+        this.toggle.classList.toggle('active', active);
+        this.toggle.textContent = active ? '✓ listo' : '✎ editar';
+        this.status.classList.toggle('show', active);
+        document.querySelectorAll('[data-editable="true"]').forEach(element => {
+          element.removeAttribute('contenteditable');
+          element.removeAttribute('spellcheck');
+        });
+        if (!active) this.persistText();
+      }
+
+      toggleMode() { this.setMode(!this.isActive); }
+
+      bindToggle() { this.toggle.addEventListener('click', () => this.toggleMode()); }
+
+      bindHotzone() {
+        this.hotzone.addEventListener('mouseenter', () => {
+          clearTimeout(this.hideTimer);
+          this.toggle.classList.add('show');
+        });
+        const deferHide = () => {
+          this.hideTimer = setTimeout(() => {
+            if (!this.isActive) this.toggle.classList.remove('show');
+          }, 400);
+        };
+        this.hotzone.addEventListener('mouseleave', deferHide);
+        this.toggle.addEventListener('mouseenter', () => clearTimeout(this.hideTimer));
+        this.toggle.addEventListener('mouseleave', deferHide);
+        this.hotzone.addEventListener('click', () => this.toggleMode());
+      }
+
+      bindEditing() {
+        this.stage.addEventListener('click', event => {
+          if (!this.isActive) return;
+          const target = event.target.closest('[data-editable="true"]');
+          if (target) this.beginEditingTarget(target, event.clientX, event.clientY);
+        });
+        document.addEventListener('keydown', event => {
+          if ((event.key === 'e' || event.key === 'E') && !event.target.isContentEditable) {
+            event.preventDefault(); this.toggleMode();
+          }
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+            event.preventDefault();
+            this.persistText();
+            this.downloadDeck();
+          }
+        });
+        document.querySelectorAll('[data-editable="true"]').forEach(element => {
+          element.addEventListener('input', () => this.persistText());
+        });
+      }
+
+      prepareEditableTargets() {
+        this.stage.querySelectorAll('h1,h2,h3,p,span,strong,em,small,b').forEach(element => {
+          if (element.textContent.trim()) element.setAttribute('data-editable', 'true');
+        });
+      }
+
+      beginEditingTarget(target, x, y) {
+        if (this.currentTarget && this.currentTarget !== target) this.finishCurrentTarget();
+        target.setAttribute('contenteditable', 'true');
+        target.setAttribute('spellcheck', 'true');
+        this.currentTarget = target;
+        target.focus({ preventScroll: true });
+        let range = document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null;
+        if (!range || !target.contains(range.startContainer)) {
+          range = document.createRange();
+          range.selectNodeContents(target);
+          range.collapse(false);
+        }
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        target.addEventListener('blur', () => {
+          if (this.currentTarget === target) this.finishCurrentTarget();
+        }, { once: true });
+      }
+
+      finishCurrentTarget() {
+        if (!this.currentTarget) return;
+        this.currentTarget.removeAttribute('contenteditable');
+        this.currentTarget.removeAttribute('spellcheck');
+        this.currentTarget = null;
+        this.persistText();
+      }
+
+      downloadDeck() {
+        const clone = document.documentElement.cloneNode(true);
+        clone.querySelectorAll('[data-editable="true"]').forEach(element => {
+          element.removeAttribute('contenteditable');
+          element.removeAttribute('spellcheck');
+        });
+        clone.querySelector('body').classList.remove('editing');
+        clone.querySelector('#editToggle').classList.remove('active', 'show');
+        clone.querySelector('#editToggle').textContent = '✎ editar';
+        clone.querySelector('#editStatus').classList.remove('show');
+        const file = new Blob(['<!doctype html>\n', clone.outerHTML], { type: 'text/html;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(file);
+        link.download = 'ley-organica-presupuesto-5-integrantes.html';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      }
+    }
+
+    /* === INITIALIZE THE DECK === */
+    const deck = new SlidePresentation();
+    const editor = new InlineDeckEditor();
+  </script>
+</body>
+</html>
